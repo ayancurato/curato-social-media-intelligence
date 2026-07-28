@@ -1,0 +1,40 @@
+[
+  {
+    "scenario_name": "B2B SaaS Launch",
+    "business_domain": "B2B Software",
+    "expected_topic_category": "Product Launch",
+    "expected_audience": "Founders, CTOs",
+    "expected_platform": "linkedin",
+    "expected_cta_type": "Lead Generation",
+    "expected_hook_style": "Contrarian",
+    "expected_tone": "Authoritative",
+    "expected_content_format": "Listicle",
+    "minimum_editor_score": 85,
+    "maximum_revision_count": 1,
+    "expected_runtime_range_ms": [10000, 45000],
+    "input_data": {
+      "topic": "Why most B2B SaaS launches fail on Product Hunt",
+      "platform": "linkedin",
+      "tone": "Authoritative"
+    }
+  },
+  {
+    "scenario_name": "Founder Thought Leadership",
+    "business_domain": "AI Automation",
+    "expected_topic_category": "Future of Work",
+    "expected_audience": "Agencies, Consultants",
+    "expected_platform": "twitter",
+    "expected_cta_type": "Newsletter Signup",
+    "expected_hook_style": "Storytelling",
+    "expected_tone": "Visionary",
+    "expected_content_format": "Thread",
+    "minimum_editor_score": 90,
+    "maximum_revision_count": 0,
+    "expected_runtime_range_ms": [5000, 30000],
+    "input_data": {
+      "topic": "How AI agents are replacing junior developers",
+      "platform": "twitter",
+      "tone": "Visionary"
+    }
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "business_domain": "B2B SaaS / Social Media Intelligence",
+  "quarterly_goals": [
+    {
+      "goal_id": "Q3_2026_01",
+      "description": "Increase enterprise trial signups by 25%",
+      "target_metric": "Trial Signups",
+      "current_progress": "10%"
+    },
+    {
+      "goal_id": "Q3_2026_02",
+      "description": "Establish authority in AI-driven content governance",
+      "target_metric": "Inbound Inquiries",
+      "current_progress": "On Track"
+    }
+  ],
+  "campaigns": [
+    {
+      "campaign_id": "CMP_LAUNCH_01",
+      "name": "The End of AI Hallucinations",
+      "objective": "Educate market on Curato's governance capabilities",
+      "priority": "High",
+      "start_date": "2026-08-01",
+      "end_date": "2026-09-15",
+      "target_personas": ["CMOs", "VP Marketing", "Founders"],
+      "content_pillars": ["Governance", "Brand Safety", "AI Agents"],
+      "success_metrics": ["Engagement Rate", "Demo Requests"],
+      "active": true
+    },
+    {
+      "campaign_id": "CMP_EVERGREEN_01",
+      "name": "Founder Thought Leadership",
+      "objective": "Build trust through transparent founder insights",
+      "priority": "Medium",
+      "start_date": "2026-01-01",
+      "end_date": "2026-12-31",
+      "target_personas": ["Founders", "Agencies"],
+      "content_pillars": ["Future of Work", "Startup Lessons", "AI Trends"],
+      "success_metrics": ["Follower Growth", "Brand Mentions"],
+      "active": true
+    }
+  ],
+  "brand_knowledge": {
+    "mission": "Empower marketing teams to scale premium content safely using AI.",
+    "vision": "A world where every brand has an autonomous, aligned Chief Content Officer.",
+    "core_values": ["Quality over Quantity", "Transparency", "Founder-First Approach"],
+    "positioning": "The premium, enterprise-grade alternative to generic AI writers.",
+    "tone": "Authoritative, insightful, contrarian, yet grounded.",
+    "messaging_pillars": ["AI Agents", "Content Strategy", "Enterprise Governance", "Social Intelligence"],
+    "competitive_advantages": ["Multi-agent architecture", "Strict governance loop", "Deep semantic tracking"],
+    "unique_selling_points": ["The Editor-in-Chief Agent", "The CMO Approval Agent", "Real-time research ingestion"],
+    "forbidden_messaging": [
+      "Using generic AI buzzwords like 'Unlock the power', 'Supercharge', 'Delve into'",
+      "Making guarantees about viral growth",
+      "Sounding like a cheap ChatGPT wrapper"
+    ],
+    "compliance_rules": ["Do not disparage specific named competitors", "Do not claim 100% accuracy"],
+    "preferred_ctas": ["Book a Demo", "Read the Manifesto", "Join the Newsletter"],
+    "preferred_industries": ["B2B SaaS", "Marketing Agencies", "Enterprise Tech"]
+  },
+  "publishing_guidelines": [
+    "Maximum 2 posts per day per platform.",
+    "Do not post promotional content on weekends.",
+    "Ensure at least 4 hours between posts."
+  ]
+}

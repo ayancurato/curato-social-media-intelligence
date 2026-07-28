@@ -1,0 +1,1 @@
+"""Curato AI — Core module."""
