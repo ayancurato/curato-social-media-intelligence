@@ -28,6 +28,12 @@ from app.schemas.workflow import (
 
 logger = get_logger(__name__)
 
+# Module-level set to hold strong references to background tasks.
+# Without this, Python's GC can collect tasks before they run since
+# asyncio only keeps WEAK references to tasks internally.
+# Pattern from Python docs: https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
+_background_tasks: set = set()
+
 
 class WorkflowService:
     """Service layer for workflow operations."""
@@ -75,7 +81,10 @@ class WorkflowService:
                 print(f"[BACKGROUND] Workflow {session_id_str} FAILED: {e}", flush=True)
                 logger.error("Background task failed", session_id=session_id_str, error=str(e))
 
-        asyncio.create_task(_run_with_logging())
+        # Keep a strong reference so GC doesn't collect the task before it runs
+        task = asyncio.create_task(_run_with_logging())
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
 
         return WorkflowTriggerResponse(
             session_id=session_id_uuid,
