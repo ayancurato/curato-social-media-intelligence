@@ -87,7 +87,8 @@ class TopicPrioritizationAgent(BaseAgent):
         if not topics:
             topics = input_data.get("topics", [])
         if not topics:
-            topics = input_data.get("recommended_topics", [])
+            # Merge recommended topics and top trends to ensure we have data
+            topics = input_data.get("recommended_topics", []) + input_data.get("top_trends", [])
             
         if not topics:
             return {"top_30_topics": [], "top_5_recommendations": []}
@@ -170,7 +171,7 @@ class TopicPrioritizationAgent(BaseAgent):
 
         return {
             "top_30_topics": top_30,
-            "prioritized_topics": top_5,
+            "top_5_recommendations": top_5,
             "metadata": {
                 "strategic_profile": strategic_profile,
                 "weights_used": weights,
