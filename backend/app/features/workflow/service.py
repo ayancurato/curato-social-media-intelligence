@@ -74,19 +74,29 @@ class WorkflowService:
         from app.workers.tasks import _run_workflow
 
         def _run_in_thread() -> None:
-            """Run workflow in a dedicated OS thread with its own asyncio event loop."""
-            loop = _asyncio.new_event_loop()
-            _asyncio.set_event_loop(loop)
+            """Run workflow in a dedicated OS thread with its own asyncio event loop.
+            
+            IMPORTANT: Must use SelectorEventLoop (not uvloop) because uvloop requires
+            the main thread on Linux and will fail in worker threads.
+            """
             try:
-                print(f"[THREAD] Starting workflow {session_id_str}", flush=True)
-                loop.run_until_complete(_run_workflow(session_id_str))
-                print(f"[THREAD] Workflow completed: {session_id_str}", flush=True)
-            except Exception as e:
+                # Explicitly use SelectorEventLoop — uvloop (used by uvicorn) is not
+                # safe in non-main threads on Linux.
+                loop = _asyncio.SelectorEventLoop()
+                _asyncio.set_event_loop(loop)
+                print(f"[THREAD] Loop created, starting workflow {session_id_str}", flush=True)
+                try:
+                    loop.run_until_complete(_run_workflow(session_id_str))
+                    print(f"[THREAD] Workflow completed: {session_id_str}", flush=True)
+                except Exception as e:
+                    import traceback as tb
+                    print(f"[THREAD] Workflow FAILED {session_id_str}: {e}\n{tb.format_exc()}", flush=True)
+                    logger.error("Thread workflow failed", session_id=session_id_str, error=str(e))
+                finally:
+                    loop.close()
+            except Exception as outer_e:
                 import traceback as tb
-                print(f"[THREAD] Workflow FAILED {session_id_str}: {e}\n{tb.format_exc()}", flush=True)
-                logger.error("Thread workflow failed", session_id=session_id_str, error=str(e))
-            finally:
-                loop.close()
+                print(f"[THREAD] Thread setup FAILED {session_id_str}: {outer_e}\n{tb.format_exc()}", flush=True)
 
         thread = threading.Thread(
             target=_run_in_thread,
