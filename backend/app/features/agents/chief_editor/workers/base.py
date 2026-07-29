@@ -55,7 +55,7 @@ class BaseEditorWorker(ABC):
         try:
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
-                user_prompt=user_prompt,
+                prompt=user_prompt,
                 temperature=self.temperature,
                 response_format="json_object",
             )

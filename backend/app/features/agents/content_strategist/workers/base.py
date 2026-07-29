@@ -53,7 +53,7 @@ class BaseBatchContentWorker(BaseContentWorker):
         try:
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
-                user_prompt=user_prompt,
+                prompt=user_prompt,
                 temperature=0.3,
                 response_format="json_object",
             )
@@ -85,7 +85,7 @@ class BaseSingleContentWorker(BaseContentWorker):
             # We use higher temperature for creative workers (Hook, CTA)
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
-                user_prompt=user_prompt,
+                prompt=user_prompt,
                 temperature=0.7, 
                 response_format="json_object",
             )

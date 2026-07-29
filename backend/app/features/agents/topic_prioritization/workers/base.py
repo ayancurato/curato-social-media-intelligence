@@ -62,7 +62,7 @@ class BaseTopicWorker(ABC):
         try:
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
-                user_prompt=user_prompt,
+                prompt=user_prompt,
                 temperature=0.2, # Lower temp for reasoning
                 response_format="json_object",
             )
