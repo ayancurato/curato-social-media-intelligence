@@ -18,7 +18,6 @@ from app.core.logging import get_logger
 from app.features.agents.config import AgentConfig, get_agent_config_manager
 from app.features.agents.tool_registry import ToolRegistry, get_tool_registry
 from app.services.llm.base import LLMProvider, LLMResponse
-from app.services.llm.factory import get_llm_provider
 
 logger = get_logger(__name__)
 
@@ -47,6 +46,8 @@ class BaseAgent(ABC):
         llm_provider: LLMProvider | None = None,
         tool_registry: ToolRegistry | None = None,
     ) -> None:
+        from app.services.llm.factory import get_llm_provider
+        
         config_manager = get_agent_config_manager()
         self._config = config or config_manager.get_config(self.name)
         self._llm = llm_provider or get_llm_provider(self._config.model.provider)
