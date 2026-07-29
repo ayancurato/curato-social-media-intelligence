@@ -88,7 +88,16 @@ def create_app() -> FastAPI:
     )
 
     # ── Exception Handlers ───────────────────────────────────────────────
-    register_exception_handlers(app)
+    # register_exception_handlers(app)
+    from fastapi.responses import JSONResponse
+    from fastapi import Request
+    import traceback
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=500,
+            content={"error": "internal_server_error", "message": str(exc), "traceback": traceback.format_exc()}
+        )
 
     # ── Routers ──────────────────────────────────────────────────────────
     from app.features.workflow.router import router as workflow_router
