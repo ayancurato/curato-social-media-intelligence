@@ -170,7 +170,7 @@ class TopicPrioritizationAgent(BaseAgent):
 
         return {
             "top_30_topics": top_30,
-            "top_5_recommendations": top_5,
+            "prioritized_topics": top_5,
             "metadata": {
                 "strategic_profile": strategic_profile,
                 "weights_used": weights,
