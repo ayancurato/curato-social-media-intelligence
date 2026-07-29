@@ -55,9 +55,24 @@ class ConnectionManager:
                 del self._connections[key]
         logger.info("WebSocket disconnected", session_id=key)
 
+    async def emit_event(
+        self,
+        session_id: str | UUID,
+        event_type: str,
+        payload: dict[str, Any],
+    ) -> None:
+        """Alias for broadcast_to_session used by agents."""
+        if isinstance(session_id, str):
+            from uuid import UUID
+            try:
+                session_id = UUID(session_id)
+            except ValueError:
+                pass # it will just use the string in broadcast_to_session, wait broadcast_to_session expects UUID but converts to str
+        await self.broadcast_to_session(session_id, event_type, payload)
+
     async def broadcast_to_session(
         self,
-        session_id: UUID,
+        session_id: UUID | str,
         event_type: str,
         data: dict[str, Any],
     ) -> None:
