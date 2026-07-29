@@ -68,7 +68,7 @@ class BaseWriterWorker(ABC):
             prompt_hash = hashlib.sha256(user_prompt.encode("utf-8")).hexdigest()
             
             trace = {
-                "worker_name": self.name,
+                "worker_name": self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                 "prompt_version": "1.0.0",
                 "prompt_hash": prompt_hash,
                 "provider": response.provider,
@@ -85,5 +85,5 @@ class BaseWriterWorker(ABC):
         except AgentValidationError:
             raise
         except Exception as e:
-            logger.warning(f"{self.name} transient error", error=str(e))
+            logger.warning(f"{self.name() if callable(self.name) else self.name} transient error", error=str(e))
             raise

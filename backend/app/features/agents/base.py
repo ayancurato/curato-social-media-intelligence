@@ -49,10 +49,10 @@ class BaseAgent(ABC):
         from app.services.llm.factory import get_llm_provider
         
         config_manager = get_agent_config_manager()
-        self._config = config or config_manager.get_config(self.name)
+        self._config = config or config_manager.get_config(self.name() if callable(self.name) else self.name)
         self._llm = llm_provider or get_llm_provider(self._config.model.provider)
         self._tool_registry = tool_registry or get_tool_registry()
-        self._logger = get_logger(f"agent.{self.name}")
+        self._logger = get_logger(f"agent.{self.name() if callable(self.name) else self.name}")
 
     # ── Abstract Properties ──────────────────────────────────────────────
 
@@ -121,7 +121,7 @@ class BaseAgent(ABC):
         """
         self._logger.info(
             "Agent execution started",
-            agent=self.name,
+            agent=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
             session_id=str(session_id) if session_id else None,
         )
         start_time = time.monotonic()
@@ -139,14 +139,14 @@ class BaseAgent(ABC):
             duration_ms = int((time.monotonic() - start_time) * 1000)
             self._logger.info(
                 "Agent execution completed",
-                agent=self.name,
+                agent=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                 duration_ms=duration_ms,
                 session_id=str(session_id) if session_id else None,
             )
 
             # Attach execution metadata
             output_data["_metadata"] = {
-                "agent": self.name,
+                "agent": self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                 "duration_ms": duration_ms,
                 "model": self._config.model.model,
                 "provider": self._config.model.provider,
@@ -160,13 +160,13 @@ class BaseAgent(ABC):
             duration_ms = int((time.monotonic() - start_time) * 1000)
             self._logger.error(
                 "Agent execution failed",
-                agent=self.name,
+                agent=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                 error=str(e),
                 duration_ms=duration_ms,
             )
             raise AgentError(
-                message=f"Agent '{self.name}' failed: {str(e)}",
-                agent_name=self.name,
+                message=f"Agent '{self.name() if callable(self.name) else self.name}' failed: {str(e)}",
+                agent_name=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                 session_id=session_id,
                 details={"duration_ms": duration_ms},
             )
@@ -188,7 +188,7 @@ class BaseAgent(ABC):
             try:
                 self._logger.info(
                     "Agent attempt",
-                    agent=self.name,
+                    agent=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                     attempt=attempt,
                     max_retries=retry_config.max_retries,
                 )
@@ -210,7 +210,7 @@ class BaseAgent(ABC):
                         )
                     self._logger.warning(
                         "Agent failed, retrying",
-                        agent=self.name,
+                        agent=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
                         attempt=attempt,
                         next_delay=delay,
                         error=str(e),
@@ -219,10 +219,10 @@ class BaseAgent(ABC):
 
         raise AgentRetryExhaustedError(
             message=(
-                f"Agent '{self.name}' exhausted all {retry_config.max_retries} retries. "
+                f"Agent '{self.name() if callable(self.name) else self.name}' exhausted all {retry_config.max_retries} retries. "
                 f"Last error: {str(last_error)}"
             ),
-            agent_name=self.name,
+            agent_name=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
             session_id=session_id,
         )
 
@@ -269,8 +269,8 @@ class BaseAgent(ABC):
         """
         if tool_name not in self._config.tools:
             raise AgentError(
-                message=f"Agent '{self.name}' does not have access to tool '{tool_name}'",
-                agent_name=self.name,
+                message=f"Agent '{self.name() if callable(self.name) else self.name}' does not have access to tool '{tool_name}'",
+                agent_name=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name,
             )
         result = await self._tool_registry.invoke(tool_name, **kwargs)
         return result

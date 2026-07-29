@@ -37,7 +37,7 @@ class BaseWorker(ABC):
         self.tool_registry = tool_registry
         self.model_config = model_config
         self.emit_event = emit_event
-        self._logger = get_logger(f"worker.{self.name}")
+        self._logger = get_logger(f"worker.{self.name() if callable(self.name) else self.name}")
 
     @property
     @abstractmethod
@@ -66,14 +66,14 @@ class BaseWorker(ABC):
             try:
                 await self.emit_event(
                     "worker_started",
-                    {"worker_name": self.name, "attempt": attempt}
+                    {"worker_name": self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, "attempt": attempt}
                 )
                 
                 result = await self.execute(**kwargs)
                 
                 await self.emit_event(
                     "worker_completed",
-                    {"worker_name": self.name, "success": True}
+                    {"worker_name": self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, "success": True}
                 )
                 return result
                 
@@ -82,14 +82,14 @@ class BaseWorker(ABC):
                 self._logger.error("Validation error in worker", error=str(e))
                 await self.emit_event(
                     "worker_failed",
-                    {"worker_name": self.name, "error": str(e), "fatal": True}
+                    {"worker_name": self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, "error": str(e), "fatal": True}
                 )
                 return {"success": False, "error": str(e), "data": {}}
                 
             except Exception as e:
                 last_error = e
                 self._logger.warning(
-                    f"Worker {self.name} failed attempt {attempt}",
+                    f"Worker {self.name() if callable(self.name) else self.name} failed attempt {attempt}",
                     error=str(e)
                 )
                 if attempt < max_retries:
@@ -97,6 +97,6 @@ class BaseWorker(ABC):
 
         await self.emit_event(
             "worker_failed",
-            {"worker_name": self.name, "error": str(last_error), "fatal": False}
+            {"worker_name": self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, "error": str(last_error), "fatal": False}
         )
         return {"success": False, "error": str(last_error), "data": {}}

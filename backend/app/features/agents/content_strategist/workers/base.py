@@ -62,7 +62,7 @@ class BaseBatchContentWorker(BaseContentWorker):
         except AgentValidationError:
             raise
         except Exception as e:
-            logger.warning("Batch Worker transient error", worker=self.name, error=str(e))
+            logger.warning("Batch Worker transient error", worker=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, error=str(e))
             raise
 
 
@@ -94,5 +94,5 @@ class BaseSingleContentWorker(BaseContentWorker):
         except AgentValidationError:
             raise
         except Exception as e:
-            logger.warning("Single Worker transient error", worker=self.name, error=str(e))
+            logger.warning("Single Worker transient error", worker=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, error=str(e))
             raise

@@ -70,8 +70,8 @@ class BaseTopicWorker(ABC):
             try:
                 parsed = json.loads(response.content)
             except json.JSONDecodeError as e:
-                logger.error("Failed to parse worker output", worker=self.name, error=str(e))
-                raise AgentValidationError(f"Invalid JSON from {self.name}: {e}")
+                logger.error("Failed to parse worker output", worker=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, error=str(e))
+                raise AgentValidationError(f"Invalid JSON from {self.name() if callable(self.name) else self.name}: {e}")
 
             return parsed
 
@@ -79,7 +79,7 @@ class BaseTopicWorker(ABC):
             # Re-raise validation errors without triggering tenacity retry
             raise
         except Exception as e:
-            logger.warning("Worker transient error, retrying", worker=self.name, error=str(e))
+            logger.warning("Worker transient error, retrying", worker=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, error=str(e))
             raise
 
     async def evaluate_topics(self, topics: list[dict[str, Any]], context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -87,5 +87,5 @@ class BaseTopicWorker(ABC):
         Public entrypoint. Evaluates all topics in a single batch.
         Expected to return a dict mapping topic titles to their specific evaluations.
         """
-        logger.info(f"{self.name} starting batch evaluation", num_topics=len(topics))
+        logger.info(f"{self.name() if callable(self.name) else self.name} starting batch evaluation", num_topics=len(topics))
         return await self._safe_execute(topics, context)
