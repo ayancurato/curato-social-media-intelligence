@@ -68,8 +68,8 @@ async def run_migrations():
                     await conn.run_sync(Base.metadata.create_all)
                     from sqlalchemy import text
                     await conn.execute(text("""
-                        INSERT INTO users (id, email, name, role, created_at, updated_at) 
-                        VALUES ('00000000-0000-0000-0000-000000000000', 'team@curato.ai', 'Curato Team', 'admin', NOW(), NOW())
+                        INSERT INTO users (id, email, name, role, is_active, created_at, updated_at) 
+                        VALUES ('00000000-0000-0000-0000-000000000000', 'team@curato.ai', 'Curato Team', 'admin', true, NOW(), NOW())
                         ON CONFLICT (id) DO NOTHING
                     """))
                 await async_engine.dispose()
