@@ -348,3 +348,7 @@ def get_agent_config_manager() -> AgentConfigManager:
     if _config_manager is None:
         _config_manager = AgentConfigManager()
     return _config_manager
+
+def get_agent_config(agent_name: str) -> AgentConfig:
+    """Convenience helper to get a specific agent's config."""
+    return get_agent_config_manager().get_config(agent_name)
