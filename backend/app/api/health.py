@@ -44,3 +44,38 @@ async def health_check(db: AsyncSession = Depends(get_db)):
             health_status["status"] = "degraded"
 
     return health_status
+
+
+@router.get("/migrate")
+async def run_migrations():
+    """Temporarily run migrations via API to see errors."""
+    import sys
+    import io
+    from contextlib import redirect_stdout, redirect_stderr
+    from alembic.config import Config
+    from alembic import command
+    import os
+    from app.core.config import get_settings
+    
+    output = io.StringIO()
+    try:
+        with redirect_stdout(output), redirect_stderr(output):
+            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            alembic_cfg = Config(os.path.join(backend_dir, "alembic.ini"))
+            alembic_cfg.set_main_option("script_location", os.path.join(backend_dir, "alembic"))
+            
+            sync_url = get_settings().database_url_sync
+            if not sync_url and get_settings().database_url:
+                sync_url = get_settings().database_url.replace("+asyncpg", "")
+                if "sslmode=" in sync_url:
+                    sync_url = sync_url.replace("sslmode=", "ssl=")
+                    
+            if sync_url:
+                alembic_cfg.set_main_option("sqlalchemy.url", sync_url)
+                command.upgrade(alembic_cfg, "head")
+                return {"status": "success", "output": output.getvalue()}
+            else:
+                return {"status": "error", "error": "No sync URL derived"}
+    except Exception as e:
+        import traceback
+        return {"status": "error", "error": str(e), "traceback": traceback.format_exc(), "output": output.getvalue()}
