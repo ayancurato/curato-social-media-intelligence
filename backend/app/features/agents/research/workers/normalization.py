@@ -13,7 +13,11 @@ class NormalizationWorker(BaseWorker):
     def name(self) -> str:
         return "normalization"
 
-    async def execute(self, raw_data: list[dict[str, Any]], **kwargs: Any) -> dict[str, Any]:
+    async def acquire_data(self, **kwargs: Any) -> Any:
+        """For normalization, acquisition is simply passing through the raw_data."""
+        return kwargs.get("raw_data", [])
+
+    async def synthesize_data(self, acquired_data: Any, **kwargs: Any) -> dict[str, Any]:
         """
         Deduplicate similar trends, normalize keywords, and cluster related findings.
         Input is the combined output of Workers 1-4.
@@ -44,7 +48,7 @@ class NormalizationWorker(BaseWorker):
         Return a strict JSON object with a 'normalized_trends' array containing these objects.
         
         Raw Data:
-        {json.dumps(raw_data, default=str)}
+        {json.dumps(acquired_data, default=str)}
         """
 
         llm_response = await self.llm.generate_structured(

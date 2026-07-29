@@ -13,8 +13,8 @@ class GoogleSearchWorker(BaseWorker):
     def name(self) -> str:
         return "google_search"
 
-    async def execute(self, **kwargs: Any) -> dict[str, Any]:
-        """Search various marketing-related topics."""
+    async def acquire_data(self, **kwargs: Any) -> Any:
+        """Acquire web search results for marketing topics."""
         topics = [
             "marketing trends",
             "startup news",
@@ -25,8 +25,6 @@ class GoogleSearchWorker(BaseWorker):
             "marketing automation"
         ]
 
-        results = []
-        
         # We can execute a few tool calls concurrently
         async def fetch_topic(topic: str) -> dict[str, Any]:
             res = await self.invoke_tool("web_search", query=topic, num_results=5)
@@ -35,9 +33,10 @@ class GoogleSearchWorker(BaseWorker):
             return {"topic": topic, "error": res.error}
 
         tasks = [fetch_topic(topic) for topic in topics]
-        tool_outputs = await asyncio.gather(*tasks, return_exceptions=True)
+        return await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Parse tool outputs with LLM to extract structured entities
+    async def synthesize_data(self, acquired_data: Any, **kwargs: Any) -> dict[str, Any]:
+        """Synthesize search results with LLM."""
         prompt = f"""
         Extract structured search results from the following tool outputs.
         Do NOT summarize. Return a strict JSON object with a 'search_results' array.
@@ -49,7 +48,7 @@ class GoogleSearchWorker(BaseWorker):
         - source_topic: string
 
         Tool Outputs:
-        {tool_outputs}
+        {acquired_data}
         """
 
         llm_response = await self.llm.generate_structured(

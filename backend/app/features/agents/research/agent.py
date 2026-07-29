@@ -84,11 +84,15 @@ class ResearchAgent(BaseAgent):
         await emit("worker_pipeline_started", {"agent": self.name})
 
         # 2. Instantiate workers
+        # Session-scoped cache to persist data across retries within the same workflow session
+        shared_cache = input_data.setdefault("_research_cache", {})
+
         kwargs = {
             "llm": self._llm,
             "tool_registry": self._tool_registry,
             "model_config": self._config.model,
-            "emit_event": emit
+            "emit_event": emit,
+            "cache": shared_cache,
         }
         
         workers = [

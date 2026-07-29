@@ -13,7 +13,7 @@ class MarketingNewsWorker(BaseWorker):
     def name(self) -> str:
         return "marketing_news"
 
-    async def execute(self, **kwargs: Any) -> dict[str, Any]:
+    async def acquire_data(self, **kwargs: Any) -> Any:
         """Collect recent marketing news."""
         topics = [
             "marketing publications",
@@ -30,8 +30,9 @@ class MarketingNewsWorker(BaseWorker):
             return {"topic": topic, "error": res.error}
 
         tasks = [fetch_news(topic) for topic in topics]
-        tool_outputs = await asyncio.gather(*tasks, return_exceptions=True)
+        return await asyncio.gather(*tasks, return_exceptions=True)
 
+    async def synthesize_data(self, acquired_data: Any, **kwargs: Any) -> dict[str, Any]:
         prompt = f"""
         Extract structured news items from the following tool outputs.
         Do NOT summarize. Return a strict JSON object with a 'news_items' array.
@@ -43,7 +44,7 @@ class MarketingNewsWorker(BaseWorker):
         - significance: string (brief explanation of why this matters)
 
         Tool Outputs:
-        {tool_outputs}
+        {acquired_data}
         """
 
         llm_response = await self.llm.generate_structured(

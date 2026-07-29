@@ -13,7 +13,7 @@ class CompetitorWorker(BaseWorker):
     def name(self) -> str:
         return "competitor_intelligence"
 
-    async def execute(self, **kwargs: Any) -> dict[str, Any]:
+    async def acquire_data(self, **kwargs: Any) -> Any:
         """Research competitor insights."""
         competitors = [
             "Breef", "DesignRush", "Clutch", "Collective OS", "Lifted by Upwork",
@@ -32,8 +32,9 @@ class CompetitorWorker(BaseWorker):
 
         # To keep it quick, we'll only actually fetch a few in the stub, but ask LLM to extract
         tasks = [fetch_competitor(comp) for comp in competitors[:5]] # Limit to 5 for speed
-        tool_outputs = await asyncio.gather(*tasks, return_exceptions=True)
+        return await asyncio.gather(*tasks, return_exceptions=True)
 
+    async def synthesize_data(self, acquired_data: Any, **kwargs: Any) -> dict[str, Any]:
         prompt = f"""
         Extract structured competitor insights from the following tool outputs.
         Return a strict JSON object with a 'competitor_insights' array.
@@ -46,7 +47,7 @@ class CompetitorWorker(BaseWorker):
         - audience_engagement: string (high/medium/low or specific metrics if available)
 
         Tool Outputs:
-        {tool_outputs}
+        {acquired_data}
         """
 
         llm_response = await self.llm.generate_structured(

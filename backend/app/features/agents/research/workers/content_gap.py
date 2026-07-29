@@ -13,7 +13,11 @@ class ContentGapWorker(BaseWorker):
     def name(self) -> str:
         return "content_gap"
 
-    async def execute(self, normalized_trends: list[dict[str, Any]], **kwargs: Any) -> dict[str, Any]:
+    async def acquire_data(self, **kwargs: Any) -> Any:
+        """For content gap, acquisition is simply passing through the normalized_trends."""
+        return kwargs.get("normalized_trends", [])
+
+    async def synthesize_data(self, acquired_data: Any, **kwargs: Any) -> dict[str, Any]:
         """
         Identify content gaps based on normalized trends.
         Find saturated topics, unexplained topics, and unanswered questions.
@@ -47,7 +51,7 @@ class ContentGapWorker(BaseWorker):
         }}
         
         Normalized Trends:
-        {json.dumps(normalized_trends, default=str)}
+        {json.dumps(acquired_data, default=str)}
         """
 
         llm_response = await self.llm.generate_structured(

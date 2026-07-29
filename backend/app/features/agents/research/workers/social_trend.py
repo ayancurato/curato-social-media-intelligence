@@ -13,7 +13,7 @@ class SocialTrendWorker(BaseWorker):
     def name(self) -> str:
         return "social_trend"
 
-    async def execute(self, **kwargs: Any) -> dict[str, Any]:
+    async def acquire_data(self, **kwargs: Any) -> Any:
         """Research social media trends."""
         
         async def fetch_reddit() -> dict:
@@ -39,8 +39,9 @@ class SocialTrendWorker(BaseWorker):
             return {"platform": "google_trends", "data": getattr(res, 'data', {})}
 
         tasks = [fetch_reddit(), fetch_linkedin(), fetch_google_trends()]
-        tool_outputs = await asyncio.gather(*tasks, return_exceptions=True)
+        return await asyncio.gather(*tasks, return_exceptions=True)
 
+    async def synthesize_data(self, acquired_data: Any, **kwargs: Any) -> dict[str, Any]:
         prompt = f"""
         Extract structured social trend intelligence from the following tool outputs.
         Return a strict JSON object with a 'social_trends' array.
@@ -52,7 +53,7 @@ class SocialTrendWorker(BaseWorker):
         - breaking_news: list of strings (if any)
         
         Tool Outputs:
-        {tool_outputs}
+        {acquired_data}
         """
 
         llm_response = await self.llm.generate_structured(
