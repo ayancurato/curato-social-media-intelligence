@@ -25,6 +25,34 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
     logger.info("Curato AI starting up", env=get_settings().app_env)
 
+    # ── Database Migrations ──────────────────────────────────────────────
+    try:
+        from alembic.config import Config
+        from alembic import command
+        import os
+        
+        # Get the path to the backend directory
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        alembic_cfg = Config(os.path.join(backend_dir, "alembic.ini"))
+        alembic_cfg.set_main_option("script_location", os.path.join(backend_dir, "alembic"))
+        
+        # We must use the sync URL for Alembic
+        sync_url = get_settings().database_url_sync
+        if not sync_url and get_settings().database_url:
+            # Try to derive sync URL if missing
+            sync_url = get_settings().database_url.replace("+asyncpg", "")
+        
+        if sync_url:
+            alembic_cfg.set_main_option("sqlalchemy.url", sync_url)
+            logger.info("Running database migrations...")
+            command.upgrade(alembic_cfg, "head")
+            logger.info("Database migrations complete")
+        else:
+            logger.warning("Could not determine sync database URL for migrations")
+    except Exception as e:
+        logger.error("Failed to run database migrations", error=str(e))
+        # Don't fail the startup if migrations fail, it might be fine or we want to see other errors
+        
     yield
 
     # ── Shutdown ─────────────────────────────────────────────────────────
