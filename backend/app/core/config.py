@@ -33,8 +33,8 @@ class Settings(BaseSettings):
         default="postgresql+asyncpg://curato:curato_secret@localhost:5432/curato_ai",
         description="Async database connection string (asyncpg driver)",
     )
-    database_url_sync: str = Field(
-        default="postgresql://curato:curato_secret@localhost:5432/curato_ai",
+    database_url_sync: str | None = Field(
+        default=None,
         description="Sync database connection string (for Alembic migrations)",
     )
     db_pool_size: int = 10

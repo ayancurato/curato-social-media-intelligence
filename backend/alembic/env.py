@@ -22,7 +22,13 @@ if config.config_file_name is not None:
 
 # Set the SQLAlchemy URL from our application settings
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url_sync)
+sync_url = settings.database_url_sync
+if not sync_url and settings.database_url:
+    sync_url = settings.database_url.replace("+asyncpg", "")
+    if "sslmode=" in sync_url:
+        sync_url = sync_url.replace("sslmode=", "ssl=")
+
+config.set_main_option("sqlalchemy.url", sync_url or "")
 
 # Target metadata for autogenerate
 target_metadata = Base.metadata
