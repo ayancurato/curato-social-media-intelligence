@@ -32,10 +32,13 @@ async def _background_run_workflow(session_id: str) -> None:
     This runs AFTER the HTTP response is sent and the DB session is committed,
     so the GenerationSession row is guaranteed to exist.
     """
+    print(f"[BACKGROUND TASK] Starting workflow for session {session_id}", flush=True)
     from app.workers.tasks import _run_workflow
     try:
         await _run_workflow(session_id)
+        print(f"[BACKGROUND TASK] Workflow completed for session {session_id}", flush=True)
     except Exception as e:
+        print(f"[BACKGROUND TASK] Workflow FAILED for session {session_id}: {e}", flush=True)
         logger.error("Background workflow task failed", session_id=session_id, error=str(e))
 
 
@@ -45,8 +48,8 @@ async def _background_run_workflow(session_id: str) -> None:
     summary="Trigger a new content generation workflow",
 )
 async def trigger_workflow(
+    background_tasks: BackgroundTasks,
     request: WorkflowTriggerRequest | None = None,
-    background_tasks: BackgroundTasks = BackgroundTasks(),
     user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ResponseEnvelope[WorkflowTriggerResponse]:
