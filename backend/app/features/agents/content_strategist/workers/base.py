@@ -26,6 +26,7 @@ class BaseContentWorker(ABC):
 
     @property
     @abstractmethod
+    @property
     def name(self) -> str:
         pass
 
@@ -96,5 +97,4 @@ class BaseSingleContentWorker(BaseContentWorker):
         except Exception as e:
             logger.warning("Single Worker transient error", worker=self.name, error=str(e))
             raise
-
 
