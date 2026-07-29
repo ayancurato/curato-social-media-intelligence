@@ -27,27 +27,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # ── Database Migrations ──────────────────────────────────────────────
     try:
-        import os
-        from sqlalchemy import create_engine
+        from sqlalchemy.ext.asyncio import create_async_engine
         from app.core.config import get_settings
         from app.models import Base
         
-        # We must use the sync URL for creating tables
-        sync_url = get_settings().database_url_sync
-        if not sync_url and get_settings().database_url:
-            # Try to derive sync URL if missing
-            sync_url = get_settings().database_url.replace("+asyncpg", "")
-            if "sslmode=" in sync_url:
-                sync_url = sync_url.replace("sslmode=", "ssl=")
+        db_url = get_settings().database_url
+        if "asyncpg" in db_url and "sslmode=" in db_url:
+            db_url = db_url.replace("sslmode=", "ssl=")
+            
+        logger.info("Creating database tables using async engine...")
+        async_engine = create_async_engine(db_url)
         
-        if sync_url:
-            logger.info("Creating database tables...")
-            sync_engine = create_engine(sync_url)
-            Base.metadata.create_all(sync_engine)
-            sync_engine.dispose()
-            logger.info("Database tables created successfully")
-        else:
-            logger.warning("Could not determine sync database URL for migrations")
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            
+        await async_engine.dispose()
+        logger.info("Database tables created successfully")
     except Exception as e:
         logger.error("Failed to run database migrations", error=str(e))
         # Don't fail the startup if migrations fail, it might be fine or we want to see other errors
