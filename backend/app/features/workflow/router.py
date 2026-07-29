@@ -6,10 +6,11 @@ REST endpoints for triggering and monitoring workflows.
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.logging import get_logger
 from app.core.security import CurrentUser, get_current_user
 from app.features.workflow.service import WorkflowService
 from app.schemas.common import PaginatedResponse, ResponseEnvelope
@@ -21,7 +22,21 @@ from app.schemas.workflow import (
     WorkflowTriggerResponse,
 )
 
+logger = get_logger(__name__)
 router = APIRouter(prefix="/workflow", tags=["Workflow"])
+
+
+async def _background_run_workflow(session_id: str) -> None:
+    """
+    Background task wrapper for workflow execution.
+    This runs AFTER the HTTP response is sent and the DB session is committed,
+    so the GenerationSession row is guaranteed to exist.
+    """
+    from app.workers.tasks import _run_workflow
+    try:
+        await _run_workflow(session_id)
+    except Exception as e:
+        logger.error("Background workflow task failed", session_id=session_id, error=str(e))
 
 
 @router.post(
@@ -31,6 +46,7 @@ router = APIRouter(prefix="/workflow", tags=["Workflow"])
 )
 async def trigger_workflow(
     request: WorkflowTriggerRequest | None = None,
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ResponseEnvelope[WorkflowTriggerResponse]:
@@ -38,11 +54,16 @@ async def trigger_workflow(
     Start a new content generation workflow.
 
     This creates a generation session and dispatches the workflow
-    to a Celery worker for async execution. Returns the session ID
-    for real-time tracking via WebSocket.
+    as a background task (runs after response is sent so the DB commit
+    has already happened). Returns the session ID for real-time tracking.
     """
     service = WorkflowService(db)
     result = await service.trigger_workflow(user.id)
+
+    # BackgroundTasks runs AFTER the response is sent + DB is committed.
+    # This guarantees the GenerationSession row exists when the task reads it.
+    background_tasks.add_task(_background_run_workflow, str(result.session_id))
+
     return ResponseEnvelope(
         success=True,
         data=result,
