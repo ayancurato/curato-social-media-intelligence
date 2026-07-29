@@ -291,9 +291,9 @@ class WorkflowOrchestrator:
                 "success": True,
             })
 
-            # Return agent output (minus internal metadata)
+            # Return agent output merged with input data to accumulate context
             output.pop("_metadata", None)
-            return output
+            return {**input_data, **output}
 
         except Exception as e:
             duration_ms = int((time.monotonic() - start_time) * 1000)
