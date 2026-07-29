@@ -60,7 +60,15 @@ class WorkflowService:
         from app.workers.tasks import _run_workflow
 
         # Create a background task that runs independently of this request
-        asyncio.create_task(_run_workflow(str(session.id)))
+        task = asyncio.create_task(_run_workflow(str(session.id)))
+        
+        def _on_done(t: asyncio.Task) -> None:
+            if t.cancelled():
+                logger.warning("Workflow background task was cancelled", session_id=str(session.id))
+            elif t.exception():
+                logger.error("Workflow background task failed", session_id=str(session.id), error=str(t.exception()))
+        
+        task.add_done_callback(_on_done)
 
         return WorkflowTriggerResponse(
             session_id=session.id,

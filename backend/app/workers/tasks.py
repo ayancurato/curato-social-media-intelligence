@@ -56,6 +56,11 @@ def execute_workflow_task(self, session_id: str) -> dict:
 
 async def _run_workflow(session_id: str) -> dict:
     """Execute the workflow within an async context with its own DB session."""
+    import asyncio
+    # Wait for the triggering HTTP request to commit its DB transaction.
+    # Without this, the background task may try to read the session row
+    # before it's committed — causing a silent WorkflowError (session not found).
+    await asyncio.sleep(2)
     from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
     from app.core.config import get_settings
