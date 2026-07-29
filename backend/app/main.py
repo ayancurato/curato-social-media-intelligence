@@ -25,18 +25,27 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
     logger.info("Curato AI starting up", env=get_settings().app_env)
 
-    # ── Database Migrations ──────────────────────────────────────────────
-    # We will trigger this manually via the /api/v1/migrate endpoint
-    # to avoid blocking the server startup and causing a Render timeout.
-    pass
-        
+    # ── Workflow Poller ──────────────────────────────────────────────────
+    # Start the background poller that picks up pending sessions and runs them.
+    # This runs in the main asyncio event loop (lifespan keeps it alive).
+    import asyncio
+    from app.features.workflow.poller import workflow_poller_loop
+
+    poller_task = asyncio.create_task(workflow_poller_loop())
+
     yield
 
     # ── Shutdown ─────────────────────────────────────────────────────────
-    from app.core.database import engine
+    poller_task.cancel()
+    try:
+        await poller_task
+    except asyncio.CancelledError:
+        pass
 
+    from app.core.database import engine
     await engine.dispose()
     logger.info("Curato AI shut down")
+
 
 
 def create_app() -> FastAPI:
