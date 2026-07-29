@@ -45,3 +45,6 @@ htmlcov/
 
 # Alembic
 alembic/versions/__pycache__/
+
+# Secrets
+backend/credentials/
