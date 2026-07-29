@@ -55,11 +55,30 @@ class WorkflowService:
             user_id=str(user_id),
         )
 
-        # Note: the background workflow task is dispatched by the router
-        # using FastAPI BackgroundTasks (runs after response + DB commit).
+        # Capture session_id before the commit (session object expires after commit)
+        session_id_str = str(session.id)
+        session_id_uuid = session.id
+
+        # Commit NOW so the background task's separate DB connection can find the row.
+        # Without this, the background task races the HTTP request's DB commit.
+        await self._db.commit()
+
+        import asyncio
+        from app.workers.tasks import _run_workflow
+
+        async def _run_with_logging():
+            print(f"[BACKGROUND] Starting workflow {session_id_str}", flush=True)
+            try:
+                await _run_workflow(session_id_str)
+                print(f"[BACKGROUND] Workflow {session_id_str} completed", flush=True)
+            except Exception as e:
+                print(f"[BACKGROUND] Workflow {session_id_str} FAILED: {e}", flush=True)
+                logger.error("Background task failed", session_id=session_id_str, error=str(e))
+
+        asyncio.create_task(_run_with_logging())
 
         return WorkflowTriggerResponse(
-            session_id=session.id,
+            session_id=session_id_uuid,
             status="pending",
             message="Content generation workflow has been triggered.",
         )
