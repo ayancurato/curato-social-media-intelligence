@@ -34,10 +34,10 @@ class ProviderRegistry:
         self._register_defaults()
         
     def _register_defaults(self):
-        # OpenAI-Compatible Models (Kimi K3)
+        # OpenAI-Compatible Models (Groq)
         self.register(ModelMetadata(
             provider="openai",
-            model_name="kimi-k3",
+            model_name="llama3-70b-8192",
             input_token_price=0.0,
             output_token_price=0.0,
             context_window=128000,
