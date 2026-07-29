@@ -26,21 +26,30 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Curato AI starting up", env=get_settings().app_env)
 
     # ── Workflow Poller ──────────────────────────────────────────────────
-    # Start the background poller that picks up pending sessions and runs them.
-    # This runs in the main asyncio event loop (lifespan keeps it alive).
-    import asyncio
-    from app.features.workflow.poller import workflow_poller_loop
-
-    poller_task = asyncio.create_task(workflow_poller_loop())
+    # STABILIZATION MODE: Poller is DISABLED.
+    #
+    # The poller was the 3rd concurrent dispatch path — it would pick up
+    # sessions still in 'pending' state ~3 seconds after the OS Thread in
+    # WorkflowService already started them, causing every session to run twice.
+    #
+    # The orchestrator now has an idempotency guard that blocks duplicate runs,
+    # but the poller is disabled here as an extra safety measure during
+    # stabilization. To re-enable: uncomment the two lines below once the
+    # system is confirmed to have no duplicate sessions in production.
+    #
+    # from app.features.workflow.poller import workflow_poller_loop
+    # poller_task = asyncio.create_task(workflow_poller_loop())
+    poller_task = None  # placeholder so the shutdown block below doesn't error
 
     yield
 
     # ── Shutdown ─────────────────────────────────────────────────────────
-    poller_task.cancel()
-    try:
-        await poller_task
-    except asyncio.CancelledError:
-        pass
+    if poller_task is not None:
+        poller_task.cancel()
+        try:
+            await poller_task
+        except asyncio.CancelledError:
+            pass
 
     from app.core.database import engine
     await engine.dispose()

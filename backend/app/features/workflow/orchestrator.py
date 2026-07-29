@@ -75,20 +75,50 @@ class WorkflowOrchestrator:
 
     # ── Main Execution ───────────────────────────────────────────────────
 
-    async def execute(self, session_id: UUID) -> dict[str, Any]:
+    async def execute(self, session_id: UUID, initiator: str = "unknown") -> dict[str, Any]:
         """
         Execute the full content generation workflow.
 
-        This is the main entry point called by the Celery task.
+        Args:
+            session_id: The session to execute.
+            initiator: Who triggered this execution (for structured logging).
+                       Should be one of: 'http_thread', 'poller', 'retry_handler', 'unknown'.
         """
         session = await self._get_session(session_id)
 
+        # ── IDEMPOTENCY GUARD ────────────────────────────────────────────────
+        # This is the last-resort safety net against duplicate dispatch.
+        # If Path 1 (Thread) and Path 2 (Poller) both reach here concurrently,
+        # whichever one sees status != 'pending' will exit immediately.
+        if session.status in ("running", "completed", "failed", "cancelled"):
+            logger.warning(
+                "Duplicate orchestrator dispatch detected and blocked",
+                session_id=str(session_id),
+                current_status=session.status,
+                initiator=initiator,
+                action="ignored",
+            )
+            print(
+                f"[ORCHESTRATOR] DUPLICATE BLOCKED — session {session_id} "
+                f"already in '{session.status}' state (initiator={initiator})",
+                flush=True,
+            )
+            return {"success": False, "reason": "duplicate_dispatch", "status": session.status}
+
+        logger.info(
+            "Orchestrator starting workflow",
+            session_id=str(session_id),
+            initiator=initiator,
+        )
+        print(f"[ORCHESTRATOR] Starting session {session_id} (initiator={initiator})", flush=True)
+
         try:
-            # Mark workflow as running
+            # Mark workflow as running IMMEDIATELY to block any concurrent dispatch
             await self._update_session(session, WorkflowStatus.RUNNING)
             if not session.started_at:
                 session.started_at = datetime.now(timezone.utc)
-            await self._log(session_id, "info", "Workflow started")
+            await self._db.commit()  # Commit status=running NOW so poller sees it
+
             await self._emit_event(session_id, "workflow_started", {})
 
             # Phase 7.5: Reconstruct context from previous runs if checkpointing

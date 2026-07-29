@@ -17,6 +17,16 @@ class SocialTrendWorker(BaseWorker):
         """Research social media trends."""
         
         async def fetch_reddit() -> dict:
+            # Skip if Reddit credentials are not configured (placeholder check)
+            import os
+            client_id = os.environ.get("REDDIT_CLIENT_ID", "")
+            if not client_id or "your_reddit" in client_id.lower() or client_id == "your_reddit_client_id_here":
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Reddit API credentials not configured — skipping Reddit fetch. "
+                    "Set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET to enable."
+                )
+                return {"platform": "reddit", "data": {}, "skipped": True}
             res = await self.invoke_tool("reddit", subreddit="marketing", query="trends")
             return {"platform": "reddit", "data": getattr(res, 'data', {})}
             

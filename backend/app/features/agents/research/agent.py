@@ -98,10 +98,16 @@ class ResearchAgent(BaseAgent):
             SocialTrendWorker(**kwargs)
         ]
 
-        # 3. Execute Phase 1 Workers concurrently
-        self._logger.info("Executing Phase 1 workers concurrently")
-        tasks = [w._safe_execute(max_retries=2) for w in workers]
-        phase1_results = await asyncio.gather(*tasks, return_exceptions=True)
+        # 3. Execute Phase 1 Workers SEQUENTIALLY (stabilization mode)
+        # Previously these ran concurrently via asyncio.gather(), which fired 4
+        # simultaneous LLM calls and triggered Groq rate limits, especially when
+        # combined with the duplicate dispatch bug (now fixed).
+        # Sequential execution is ~15s slower but guaranteed not to rate-limit.
+        self._logger.info("Executing Phase 1 workers sequentially (stabilization mode)")
+        phase1_results = []
+        for w in workers:
+            result = await w._safe_execute(max_retries=2)
+            phase1_results.append(result)
         
         # Collect successful data
         raw_data = []

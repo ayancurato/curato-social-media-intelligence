@@ -78,20 +78,25 @@ class WorkflowService:
             
             IMPORTANT: Must use SelectorEventLoop (not uvloop) because uvloop requires
             the main thread on Linux and will fail in worker threads.
+
+            IDEMPOTENCY: Only one thread should be dispatched per session. The
+            orchestrator's idempotency guard provides a second safety net.
             """
             try:
-                # Explicitly use SelectorEventLoop — uvloop (used by uvicorn) is not
-                # safe in non-main threads on Linux.
                 loop = _asyncio.SelectorEventLoop()
                 _asyncio.set_event_loop(loop)
-                print(f"[THREAD] Loop created, starting workflow {session_id_str}", flush=True)
+                print(
+                    f"[THREAD] Loop created, starting workflow {session_id_str} "
+                    f"(initiator=http_thread)",
+                    flush=True
+                )
                 try:
-                    loop.run_until_complete(_run_workflow(session_id_str))
+                    loop.run_until_complete(_run_workflow(session_id_str, initiator="http_thread"))
                     print(f"[THREAD] Workflow completed: {session_id_str}", flush=True)
                 except Exception as e:
                     import traceback as tb
                     print(f"[THREAD] Workflow FAILED {session_id_str}: {e}\n{tb.format_exc()}", flush=True)
-                    logger.error("Thread workflow failed", session_id=session_id_str, error=str(e))
+                    logger.error("Thread workflow failed", session_id=session_id_str, error=str(e), initiator="http_thread")
                 finally:
                     loop.close()
             except Exception as outer_e:
@@ -104,7 +109,13 @@ class WorkflowService:
             name=f"workflow-{session_id_str[:8]}",
         )
         thread.start()
-        print(f"[THREAD] Thread started for workflow {session_id_str}", flush=True)
+        print(f"[THREAD] Thread started for workflow {session_id_str} (initiator=http_thread)", flush=True)
+        logger.info(
+            "Workflow thread dispatched",
+            session_id=session_id_str,
+            initiator="http_thread",
+            thread_name=f"workflow-{session_id_str[:8]}",
+        )
 
         return WorkflowTriggerResponse(
             session_id=session_id_uuid,

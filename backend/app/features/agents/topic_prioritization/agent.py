@@ -100,7 +100,9 @@ class TopicPrioritizationAgent(BaseAgent):
         if not topics:
             return {"top_30_topics": [], "top_5_recommendations": []}
 
-        # 1. Batch Execution of Reasoning Workers (Concurrently)
+        # 1. Batch Execution of Reasoning Workers (max 2 concurrent — stabilization mode)
+        # Previously all 4 workers ran concurrently, firing 4 simultaneous LLM calls.
+        # With a Semaphore(2) we limit to 2 concurrent calls to stay within Groq rate limits.
         await ws_manager.emit_event(
             session_id=session_id,
             event_type="topic_evaluation_started",
@@ -108,12 +110,17 @@ class TopicPrioritizationAgent(BaseAgent):
         )
 
         context = {"strategic_goal": strategic_profile}
+        semaphore = asyncio.Semaphore(2)
+
+        async def run_with_semaphore(coro):
+            async with semaphore:
+                return await coro
 
         results = await asyncio.gather(
-            opp_worker.evaluate_topics(topics, context),
-            biz_worker.evaluate_topics(topics, context),
-            aud_worker.evaluate_topics(topics, context),
-            strat_worker.evaluate_topics(topics, context),
+            run_with_semaphore(opp_worker.evaluate_topics(topics, context)),
+            run_with_semaphore(biz_worker.evaluate_topics(topics, context)),
+            run_with_semaphore(aud_worker.evaluate_topics(topics, context)),
+            run_with_semaphore(strat_worker.evaluate_topics(topics, context)),
             return_exceptions=True
         )
 

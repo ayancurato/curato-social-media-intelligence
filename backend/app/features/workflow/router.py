@@ -6,7 +6,7 @@ REST endpoints for triggering and monitoring workflows.
 
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -25,21 +25,10 @@ from app.schemas.workflow import (
 logger = get_logger(__name__)
 router = APIRouter(prefix="/workflow", tags=["Workflow"])
 
-
-async def _background_run_workflow(session_id: str) -> None:
-    """
-    Background task wrapper for workflow execution.
-    This runs AFTER the HTTP response is sent and the DB session is committed,
-    so the GenerationSession row is guaranteed to exist.
-    """
-    print(f"[BACKGROUND TASK] Starting workflow for session {session_id}", flush=True)
-    from app.workers.tasks import _run_workflow
-    try:
-        await _run_workflow(session_id)
-        print(f"[BACKGROUND TASK] Workflow completed for session {session_id}", flush=True)
-    except Exception as e:
-        print(f"[BACKGROUND TASK] Workflow FAILED for session {session_id}: {e}", flush=True)
-        logger.error("Background workflow task failed", session_id=session_id, error=str(e))
+# NOTE: _background_run_workflow removed. The WorkflowService.trigger_workflow() method
+# dispatches via a dedicated OS Thread (see service.py). That is the ONLY dispatch path.
+# Having BackgroundTasks here AND a Thread in service.py caused every session to execute
+# TWICE (plus a third time from the poller). Do not add dispatch logic here.
 
 
 @router.post(
@@ -48,7 +37,6 @@ async def _background_run_workflow(session_id: str) -> None:
     summary="Trigger a new content generation workflow",
 )
 async def trigger_workflow(
-    background_tasks: BackgroundTasks,
     request: WorkflowTriggerRequest | None = None,
     user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -56,16 +44,17 @@ async def trigger_workflow(
     """
     Start a new content generation workflow.
 
-    This creates a generation session and dispatches the workflow
-    as a background task (runs after response is sent so the DB commit
-    has already happened). Returns the session ID for real-time tracking.
+    Creates a GenerationSession in DB and dispatches execution via a
+    dedicated OS Thread (inside WorkflowService.trigger_workflow). 
+    Returns the session ID immediately for real-time WebSocket tracking.
+
+    IDEMPOTENCY: WorkflowService will not dispatch if a session for this
+    user is already in RUNNING state. The orchestrator adds a second
+    idempotency check at the top of execute().
     """
+    logger.info("Workflow trigger requested via HTTP", user_id=str(user.id), initiator="http_endpoint")
     service = WorkflowService(db)
     result = await service.trigger_workflow(user.id)
-
-    # BackgroundTasks runs AFTER the response is sent + DB is committed.
-    # This guarantees the GenerationSession row exists when the task reads it.
-    background_tasks.add_task(_background_run_workflow, str(result.session_id))
 
     return ResponseEnvelope(
         success=True,

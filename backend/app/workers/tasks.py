@@ -54,8 +54,14 @@ def execute_workflow_task(self, session_id: str) -> dict:
         raise
 
 
-async def _run_workflow(session_id: str) -> dict:
-    """Execute the workflow within an async context with its own DB session."""
+async def _run_workflow(session_id: str, initiator: str = "unknown") -> dict:
+    """Execute the workflow within an async context with its own DB session.
+    
+    Args:
+        session_id: The session UUID string to execute.
+        initiator: Who triggered this call — used for structured logging only.
+                   Values: 'http_thread', 'poller', 'celery_task', 'unknown'.
+    """
     from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
     from app.core.config import get_settings
@@ -105,7 +111,8 @@ async def _run_workflow(session_id: str) -> dict:
                 notification_callback=notify,
             )
 
-            result = await orchestrator.execute(UUID(session_id))
+            result = await orchestrator.execute(UUID(session_id), initiator=initiator)
+
             await db.commit()
             return result
 
