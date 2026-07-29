@@ -37,7 +37,7 @@ class ProviderRegistry:
         # OpenAI-Compatible Models (Kimi K3)
         self.register(ModelMetadata(
             provider="openai",
-            model_name="kimmi-k3",
+            model_name="kimi-k3",
             input_token_price=0.0,
             output_token_price=0.0,
             context_window=128000,
