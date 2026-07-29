@@ -65,9 +65,13 @@ async def _run_workflow(session_id: str) -> dict:
 
     settings = get_settings()
 
+    db_url = settings.database_url
+    if "asyncpg" in db_url and "sslmode=" in db_url:
+        db_url = db_url.replace("sslmode=", "ssl=")
+
     # Create a dedicated engine for the worker process
     engine = create_async_engine(
-        settings.database_url,
+        db_url,
         pool_size=5,
         max_overflow=10,
         pool_pre_ping=True,

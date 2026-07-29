@@ -16,9 +16,13 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+db_url = settings.database_url
+if "asyncpg" in db_url and "sslmode=" in db_url:
+    db_url = db_url.replace("sslmode=", "ssl=")
+
 # ── Async Engine ─────────────────────────────────────────────────────────────
 engine = create_async_engine(
-    settings.database_url,
+    db_url,
     pool_size=settings.db_pool_size,
     max_overflow=settings.db_max_overflow,
     pool_pre_ping=settings.db_pool_pre_ping,
