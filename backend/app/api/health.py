@@ -52,18 +52,14 @@ async def run_migrations():
     import sys
     import io
     from contextlib import redirect_stdout, redirect_stderr
-    from alembic.config import Config
-    from alembic import command
     import os
+    from sqlalchemy import create_engine
     from app.core.config import get_settings
+    from app.models import Base
     
     output = io.StringIO()
     try:
         with redirect_stdout(output), redirect_stderr(output):
-            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            alembic_cfg = Config(os.path.join(backend_dir, "alembic.ini"))
-            alembic_cfg.set_main_option("script_location", os.path.join(backend_dir, "alembic"))
-            
             sync_url = get_settings().database_url_sync
             if not sync_url and get_settings().database_url:
                 sync_url = get_settings().database_url.replace("+asyncpg", "")
@@ -71,8 +67,9 @@ async def run_migrations():
                     sync_url = sync_url.replace("sslmode=", "ssl=")
                     
             if sync_url:
-                alembic_cfg.set_main_option("sqlalchemy.url", sync_url)
-                command.upgrade(alembic_cfg, "head")
+                sync_engine = create_engine(sync_url)
+                Base.metadata.create_all(sync_engine)
+                sync_engine.dispose()
                 return {"status": "success", "output": output.getvalue()}
             else:
                 return {"status": "error", "error": "No sync URL derived"}
