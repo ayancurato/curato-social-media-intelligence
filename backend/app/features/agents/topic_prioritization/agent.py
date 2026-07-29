@@ -87,8 +87,15 @@ class TopicPrioritizationAgent(BaseAgent):
         if not topics:
             topics = input_data.get("topics", [])
         if not topics:
+            def _ensure_list(val):
+                if isinstance(val, list):
+                    return val
+                if isinstance(val, dict):
+                    return [val]
+                return []
+            
             # Merge recommended topics and top trends to ensure we have data
-            topics = input_data.get("recommended_topics", []) + input_data.get("top_trends", [])
+            topics = _ensure_list(input_data.get("recommended_topics")) + _ensure_list(input_data.get("top_trends"))
             
         if not topics:
             return {"top_30_topics": [], "top_5_recommendations": []}
