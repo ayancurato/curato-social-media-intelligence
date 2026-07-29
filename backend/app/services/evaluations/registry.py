@@ -37,7 +37,7 @@ class ProviderRegistry:
         # OpenAI-Compatible Models (Groq)
         self.register(ModelMetadata(
             provider="openai",
-            model_name="llama-3.1-70b-versatile",
+            model_name="llama-3.3-70b-versatile",
             input_token_price=0.0,
             output_token_price=0.0,
             context_window=128000,
