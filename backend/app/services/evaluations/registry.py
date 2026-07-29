@@ -64,37 +64,37 @@ class ProviderRegistry:
             default_max_tokens=4096
         ))
         
-        # Anthropic Models
-        self.register(ModelMetadata(
-            provider="anthropic",
-            model_name="claude-3-5-sonnet-20240620",
-            input_token_price=3.00,
-            output_token_price=15.00,
-            context_window=200000,
-            max_output_tokens=8192,
-            json_mode_support=True,
-            tool_calling_support=True,
-            streaming_support=True,
-            vision_support=True,
-            default_temperature=0.3,
-            default_max_tokens=4096
-        ))
+        # Anthropic Models (Unsupported in factory currently)
+        # self.register(ModelMetadata(
+        #     provider="anthropic",
+        #     model_name="claude-3-5-sonnet-20240620",
+        #     input_token_price=3.00,
+        #     output_token_price=15.00,
+        #     context_window=200000,
+        #     max_output_tokens=8192,
+        #     json_mode_support=True,
+        #     tool_calling_support=True,
+        #     streaming_support=True,
+        #     vision_support=True,
+        #     default_temperature=0.3,
+        #     default_max_tokens=4096
+        # ))
         
-        # Google Models
-        self.register(ModelMetadata(
-            provider="google",
-            model_name="gemini-1.5-pro",
-            input_token_price=3.50,
-            output_token_price=10.50,
-            context_window=2000000,
-            max_output_tokens=8192,
-            json_mode_support=True,
-            tool_calling_support=True,
-            streaming_support=True,
-            vision_support=True,
-            default_temperature=0.3,
-            default_max_tokens=4096
-        ))
+        # Google Models (Unsupported in factory currently)
+        # self.register(ModelMetadata(
+        #     provider="google",
+        #     model_name="gemini-1.5-pro",
+        #     input_token_price=3.50,
+        #     output_token_price=10.50,
+        #     context_window=2000000,
+        #     max_output_tokens=8192,
+        #     json_mode_support=True,
+        #     tool_calling_support=True,
+        #     streaming_support=True,
+        #     vision_support=True,
+        #     default_temperature=0.3,
+        #     default_max_tokens=4096
+        # ))
 
     def register(self, metadata: ModelMetadata):
         self._models[metadata.model_name] = metadata
