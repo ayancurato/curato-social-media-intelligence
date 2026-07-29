@@ -51,3 +51,8 @@ beautifulsoup4==4.12.3
 markdownify==0.12.1
 firecrawl-py==1.2.2
 playwright==1.45.0
+
+# Phase 8 Google Integrations
+google-api-python-client==2.118.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
