@@ -58,7 +58,6 @@ class BaseAgent(ABC):
 
     @property
     @abstractmethod
-    @property
     def name(self) -> str:
         """Unique identifier for this agent."""
         ...
