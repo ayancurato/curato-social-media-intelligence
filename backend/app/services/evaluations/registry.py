@@ -37,6 +37,21 @@ class ProviderRegistry:
         # OpenAI-Compatible Models (Groq)
         self.register(ModelMetadata(
             provider="openai",
+            model_name="llama-3.1-8b-instant",
+            input_token_price=0.0,
+            output_token_price=0.0,
+            context_window=128000,
+            max_output_tokens=4096,
+            json_mode_support=True,
+            tool_calling_support=True,
+            streaming_support=True,
+            vision_support=False,
+            default_temperature=0.3,
+            default_max_tokens=4096
+        ))
+        
+        self.register(ModelMetadata(
+            provider="openai",
             model_name="llama-3.3-70b-versatile",
             input_token_price=0.0,
             output_token_price=0.0,

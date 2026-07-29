@@ -25,8 +25,8 @@ class RoutingPolicyEngine:
         for name, meta in provider_registry._models.items():
             if name in excluded_models:
                 continue
-            #if CircuitBreaker.is_open(meta.provider, name):
-            #    continue
+            if CircuitBreaker.is_open(meta.provider, name):
+                continue
             available_models.append(meta)
             
         if not available_models:
