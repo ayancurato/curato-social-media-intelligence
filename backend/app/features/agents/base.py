@@ -131,7 +131,12 @@ class BaseAgent(ABC):
             await self.validate_input(input_data)
 
             # 2. Execute
-            output_data = await self.run(input_data)
+            import inspect
+            sig = inspect.signature(self.run)
+            if "session_id" in sig.parameters:
+                output_data = await self.run(session_id=str(session_id) if session_id else "", input_data=input_data)
+            else:
+                output_data = await self.run(input_data)
 
             # 3. Validate output
             await self.validate_output(output_data)
