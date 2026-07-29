@@ -53,11 +53,11 @@ class BaseEditorWorker(ABC):
     async def review(self, draft_data: dict[str, Any], context: dict[str, Any] | None = None) -> dict[str, Any]:
         user_prompt = self.format_user_prompt(draft_data, context)
         try:
+            from app.features.agents.config import ModelConfig
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
                 prompt=user_prompt,
-                temperature=self.temperature,
-                response_format="json_object",
+                model_config=ModelConfig(temperature=self.temperature, response_format="json_object"),
             )
             parsed = json.loads(response.content)
             

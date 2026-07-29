@@ -55,11 +55,11 @@ class BaseCMOWorker(ABC):
         """Evaluates governance metrics based on provided context."""
         user_prompt = self.format_user_prompt(context)
         try:
+            from app.features.agents.config import ModelConfig
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
                 prompt=user_prompt,
-                temperature=self.temperature,
-                response_format="json_object",
+                model_config=ModelConfig(temperature=self.temperature, response_format="json_object"),
             )
             parsed = json.loads(response.content)
             

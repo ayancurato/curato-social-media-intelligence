@@ -55,11 +55,14 @@ class BaseWriterWorker(ABC):
         """Processes a single blueprint/draft."""
         user_prompt = self.format_user_prompt(blueprint, context)
         try:
+            from app.features.agents.config import ModelConfig
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
                 prompt=user_prompt,
-                temperature=self.temperature,
-                response_format="json_object",
+                model_config=ModelConfig(
+                    temperature=self.temperature,
+                    response_format="json_object" if getattr(self, "requires_json", False) else None
+                ),
             )
             parsed = json.loads(response.content)
             

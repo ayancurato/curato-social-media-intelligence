@@ -60,11 +60,11 @@ class BaseTopicWorker(ABC):
         user_prompt = self.format_user_prompt(topics, context)
 
         try:
+            from app.features.agents.config import ModelConfig
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
                 prompt=user_prompt,
-                temperature=0.2, # Lower temp for reasoning
-                response_format="json_object",
+                model_config=ModelConfig(temperature=0.2, response_format="json_object"),
             )
             
             try:

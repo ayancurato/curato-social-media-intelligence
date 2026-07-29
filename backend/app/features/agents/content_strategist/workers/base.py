@@ -51,11 +51,11 @@ class BaseBatchContentWorker(BaseContentWorker):
     async def evaluate_topics(self, topics: list[dict[str, Any]]) -> dict[str, Any]:
         user_prompt = self.format_user_prompt(topics)
         try:
+            from app.features.agents.config import ModelConfig
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
                 prompt=user_prompt,
-                temperature=0.3,
-                response_format="json_object",
+                model_config=ModelConfig(temperature=0.3, response_format="json_object"),
             )
             parsed = json.loads(response.content)
             return parsed
@@ -83,11 +83,11 @@ class BaseSingleContentWorker(BaseContentWorker):
         user_prompt = self.format_user_prompt(topic, context)
         try:
             # We use higher temperature for creative workers (Hook, CTA)
+            from app.features.agents.config import ModelConfig
             response = await self.llm.generate(
                 system_prompt=self.system_prompt,
                 prompt=user_prompt,
-                temperature=0.7, 
-                response_format="json_object",
+                model_config=ModelConfig(temperature=0.7, response_format="json_object"),
             )
             parsed = json.loads(response.content)
             return parsed
