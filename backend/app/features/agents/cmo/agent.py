@@ -28,6 +28,7 @@ class CMOAgent(BaseAgent):
     def display_name(self) -> str:
         return "Executive Marketing Approval"
 
+    @property
     def name(self) -> str:
         return "cmo"
 
