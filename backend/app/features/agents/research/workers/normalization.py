@@ -10,6 +10,7 @@ from app.features.agents.research.workers.base import BaseWorker
 
 class NormalizationWorker(BaseWorker):
     @property
+    @property
     def name(self) -> str:
         return "normalization"
 
@@ -58,3 +59,4 @@ class NormalizationWorker(BaseWorker):
             "data": llm_response.get("normalized_trends", []),
             "source": "normalization_worker"
         }
+

@@ -9,6 +9,7 @@ from app.features.agents.cmo.workers.base import BaseCMOWorker
 
 class BusinessAlignmentWorker(BaseCMOWorker):
     @property
+    @property
     def name(self) -> str:
         return "Business Alignment Evaluator"
 
@@ -42,3 +43,4 @@ You MUST output a JSON object:
 {draft}
 
 Evaluate alignment strictly using the JSON schema provided."""
+

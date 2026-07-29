@@ -9,6 +9,7 @@ from app.features.agents.content_writer.workers.base import BaseWriterWorker
 
 class StructurePlannerWorker(BaseWriterWorker):
     @property
+    @property
     def name(self) -> str:
         return "Structure Planner"
 
@@ -42,3 +43,4 @@ You MUST return a JSON object.
 {json.dumps(blueprint, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
+

@@ -9,6 +9,7 @@ from app.features.agents.chief_editor.workers.base import BaseEditorWorker
 
 class FactLogicReviewerWorker(BaseEditorWorker):
     @property
+    @property
     def name(self) -> str:
         return "Fact & Logic Reviewer"
 
@@ -36,3 +37,4 @@ DRAFT:
 {draft}
 
 Return ONLY valid JSON according to the schema."""
+

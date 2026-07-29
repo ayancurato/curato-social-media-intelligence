@@ -9,6 +9,7 @@ from app.features.agents.cmo.workers.base import BaseCMOWorker
 
 class PublishingStrategyWorker(BaseCMOWorker):
     @property
+    @property
     def name(self) -> str:
         return "Publishing Strategy Coordinator"
 
@@ -43,3 +44,4 @@ You MUST output a JSON object:
 {json.dumps(marketing_knowledge.get("publishing_guidelines", []), indent=2)}
 
 Return the JSON strategy strictly."""
+

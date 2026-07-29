@@ -30,6 +30,7 @@ class ContentStrategistAgent(BaseAgent):
     """
 
     @property
+    @property
     def name(self) -> str:
         return "content_strategist"
 
@@ -193,3 +194,4 @@ class ContentStrategistAgent(BaseAgent):
         return {
             "blueprints": blueprints
         }
+

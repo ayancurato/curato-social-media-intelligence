@@ -31,6 +31,7 @@ class BaseTopicWorker(ABC):
 
     @property
     @abstractmethod
+    @property
     def name(self) -> str:
         """Worker name."""
         pass
@@ -89,3 +90,4 @@ class BaseTopicWorker(ABC):
         """
         logger.info(f"{self.name} starting batch evaluation", num_topics=len(topics))
         return await self._safe_execute(topics, context)
+

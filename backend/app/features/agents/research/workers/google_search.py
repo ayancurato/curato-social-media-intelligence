@@ -10,6 +10,7 @@ from app.features.agents.research.workers.base import BaseWorker
 
 class GoogleSearchWorker(BaseWorker):
     @property
+    @property
     def name(self) -> str:
         return "google_search"
 
@@ -63,3 +64,4 @@ class GoogleSearchWorker(BaseWorker):
             "data": llm_response.get("search_results", []),
             "source": "google_search_worker"
         }
+

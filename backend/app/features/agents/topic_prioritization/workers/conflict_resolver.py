@@ -9,6 +9,7 @@ from app.features.agents.topic_prioritization.workers.base import BaseTopicWorke
 
 class ConflictResolverWorker(BaseTopicWorker):
     @property
+    @property
     def name(self) -> str:
         return "Conflict Resolver Worker"
 
@@ -50,3 +51,4 @@ You MUST return a JSON object with a single root key "evaluations" mapping exact
 {json.dumps(topics_subset, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
+

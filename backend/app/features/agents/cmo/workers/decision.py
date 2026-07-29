@@ -9,6 +9,7 @@ from app.features.agents.cmo.workers.base import BaseCMOWorker
 
 class ExecutiveDecisionEngineWorker(BaseCMOWorker):
     @property
+    @property
     def name(self) -> str:
         return "Executive Decision Engine"
 
@@ -66,3 +67,4 @@ You MUST output a JSON object EXACTLY matching this schema:
 {json.dumps(risk_eval, indent=2)}
 
 Return ONLY the strictly formatted JSON decision object."""
+

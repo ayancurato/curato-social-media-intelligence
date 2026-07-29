@@ -9,6 +9,7 @@ from app.features.agents.content_writer.workers.base import BaseWriterWorker
 
 class DiscoverabilityOptimizerWorker(BaseWriterWorker):
     @property
+    @property
     def name(self) -> str:
         return "Discoverability Optimizer"
 
@@ -44,3 +45,4 @@ DRAFT:
 {draft}
 
 Return ONLY valid JSON according to the schema."""
+

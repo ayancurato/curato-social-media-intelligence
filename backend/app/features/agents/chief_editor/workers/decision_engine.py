@@ -9,6 +9,7 @@ from app.features.agents.chief_editor.workers.base import BaseEditorWorker
 
 class DecisionEngineWorker(BaseEditorWorker):
     @property
+    @property
     def name(self) -> str:
         return "Editorial Decision Engine"
 
@@ -48,3 +49,4 @@ REVIEWS:
 {json.dumps(reviews, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
+

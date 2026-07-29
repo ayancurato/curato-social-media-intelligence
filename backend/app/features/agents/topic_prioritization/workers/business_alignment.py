@@ -9,6 +9,7 @@ from app.features.agents.topic_prioritization.workers.base import BaseTopicWorke
 
 class BusinessAlignmentWorker(BaseTopicWorker):
     @property
+    @property
     def name(self) -> str:
         return "Business Alignment Worker"
 
@@ -54,3 +55,4 @@ The current overarching strategic goal is: "{goal}"
 {json.dumps(topics_subset, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
+

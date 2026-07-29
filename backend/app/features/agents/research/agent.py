@@ -32,6 +32,7 @@ class ResearchAgent(BaseAgent):
     """
 
     @property
+    @property
     def name(self) -> str:
         return "research"
 
@@ -176,3 +177,4 @@ class ResearchAgent(BaseAgent):
         await emit("worker_pipeline_completed", {"agent": self.name})
 
         return report
+

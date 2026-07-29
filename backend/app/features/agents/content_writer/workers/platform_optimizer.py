@@ -13,8 +13,10 @@ class PlatformOptimizerWorker:
     """
     
     @property
+    @property
     def name(self) -> str:
         return "Platform Optimizer"
 
     def process(self, draft: str, platform: str) -> str:
         return apply_platform_formatting(draft, platform)
+

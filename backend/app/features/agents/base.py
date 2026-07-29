@@ -58,6 +58,7 @@ class BaseAgent(ABC):
 
     @property
     @abstractmethod
+    @property
     def name(self) -> str:
         """Unique identifier for this agent."""
         ...
@@ -274,3 +275,4 @@ class BaseAgent(ABC):
             )
         result = await self._tool_registry.invoke(tool_name, **kwargs)
         return result
+

@@ -28,6 +28,7 @@ class BaseCMOWorker(ABC):
 
     @property
     @abstractmethod
+    @property
     def name(self) -> str:
         pass
 
@@ -87,3 +88,4 @@ class BaseCMOWorker(ABC):
         except Exception as e:
             logger.warning(f"{self.name} transient error", error=str(e))
             raise
+

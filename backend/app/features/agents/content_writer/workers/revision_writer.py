@@ -9,6 +9,7 @@ from app.features.agents.content_writer.workers.base import BaseWriterWorker
 
 class RevisionWriterWorker(BaseWriterWorker):
     @property
+    @property
     def name(self) -> str:
         return "Revision Writer"
 
@@ -53,3 +54,4 @@ PAST EDITORIAL FEEDBACK TO AVOID:
 {memory_str}
 
 Return ONLY valid JSON according to the schema."""
+

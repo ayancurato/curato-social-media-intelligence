@@ -9,6 +9,7 @@ from app.features.agents.content_strategist.workers.base import BaseSingleConten
 
 class HookGeneratorWorker(BaseSingleContentWorker):
     @property
+    @property
     def name(self) -> str:
         return "Hook Generator"
 
@@ -41,3 +42,4 @@ Audience: {topic.get('audience')}
 Platform: {topic.get('platform', 'LinkedIn')}
 
 Return ONLY valid JSON according to the schema."""
+

@@ -41,6 +41,7 @@ class BaseWorker(ABC):
 
     @property
     @abstractmethod
+    @property
     def name(self) -> str:
         """Worker name (e.g., google_search, competitor_intelligence)"""
         pass
@@ -100,3 +101,4 @@ class BaseWorker(ABC):
             {"worker_name": self.name, "error": str(last_error), "fatal": False}
         )
         return {"success": False, "error": str(last_error), "data": {}}
+

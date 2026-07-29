@@ -9,6 +9,7 @@ from app.features.agents.chief_editor.workers.base import BaseEditorWorker
 
 class EngagementOptimizerWorker(BaseEditorWorker):
     @property
+    @property
     def name(self) -> str:
         return "Engagement Optimizer"
 
@@ -42,3 +43,4 @@ DRAFT:
 {draft}
 
 Return ONLY valid JSON according to the schema."""
+

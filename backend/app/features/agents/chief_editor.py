@@ -22,6 +22,7 @@ class ChiefEditorAgent(BaseAgent):
     """
 
     @property
+    @property
     def name(self) -> str:
         return "chief_editor"
 
@@ -71,3 +72,4 @@ class ChiefEditorAgent(BaseAgent):
                 "Recommending for CMO approval with minor suggestions noted."
             ),
         }
+

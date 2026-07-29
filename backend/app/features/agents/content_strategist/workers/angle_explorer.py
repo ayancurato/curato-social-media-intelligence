@@ -9,6 +9,7 @@ from app.features.agents.content_strategist.workers.base import BaseBatchContent
 
 class AngleExplorerWorker(BaseBatchContentWorker):
     @property
+    @property
     def name(self) -> str:
         return "Angle Explorer"
 
@@ -46,3 +47,4 @@ You MUST return a JSON object mapping each exact topic title to its angles.
 {json.dumps(topics_subset, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
+

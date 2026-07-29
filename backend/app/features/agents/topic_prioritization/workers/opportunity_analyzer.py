@@ -9,6 +9,7 @@ from app.features.agents.topic_prioritization.workers.base import BaseTopicWorke
 
 class OpportunityAnalyzerWorker(BaseTopicWorker):
     @property
+    @property
     def name(self) -> str:
         return "Opportunity Analyzer"
 
@@ -54,3 +55,4 @@ You MUST return a JSON object with a single root key "evaluations" that maps eac
 {json.dumps(topics_subset, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
+

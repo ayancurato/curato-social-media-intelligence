@@ -9,6 +9,7 @@ from app.features.agents.cmo.workers.base import BaseCMOWorker
 
 class CampaignConflictWorker(BaseCMOWorker):
     @property
+    @property
     def name(self) -> str:
         return "Campaign Conflict Detector"
 
@@ -43,3 +44,4 @@ You MUST output a JSON object:
 {json.dumps(queue, indent=2)}
 
 Return the JSON evaluation strictly."""
+

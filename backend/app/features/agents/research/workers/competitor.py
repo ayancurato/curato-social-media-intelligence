@@ -10,6 +10,7 @@ from app.features.agents.research.workers.base import BaseWorker
 
 class CompetitorWorker(BaseWorker):
     @property
+    @property
     def name(self) -> str:
         return "competitor_intelligence"
 
@@ -60,3 +61,4 @@ class CompetitorWorker(BaseWorker):
             "data": llm_response.get("competitor_insights", []),
             "source": "competitor_worker"
         }
+

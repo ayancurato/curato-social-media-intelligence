@@ -28,6 +28,7 @@ class BaseWriterWorker(ABC):
 
     @property
     @abstractmethod
+    @property
     def name(self) -> str:
         pass
 
@@ -87,3 +88,4 @@ class BaseWriterWorker(ABC):
         except Exception as e:
             logger.warning(f"{self.name} transient error", error=str(e))
             raise
+
