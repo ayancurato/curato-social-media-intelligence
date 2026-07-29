@@ -34,36 +34,22 @@ class ProviderRegistry:
         self._register_defaults()
         
     def _register_defaults(self):
-        # OpenAI Models
+        # OpenAI-Compatible Models (Kimi K3)
         self.register(ModelMetadata(
             provider="openai",
-            model_name="gpt-4o",
-            input_token_price=5.00,
-            output_token_price=15.00,
+            model_name="kimmi-k3",
+            input_token_price=0.0,
+            output_token_price=0.0,
             context_window=128000,
             max_output_tokens=4096,
             json_mode_support=True,
             tool_calling_support=True,
             streaming_support=True,
-            vision_support=True,
+            vision_support=False,
             default_temperature=0.3,
             default_max_tokens=4096
         ))
-        self.register(ModelMetadata(
-            provider="openai",
-            model_name="gpt-4o-mini",
-            input_token_price=0.15,
-            output_token_price=0.60,
-            context_window=128000,
-            max_output_tokens=16384,
-            json_mode_support=True,
-            tool_calling_support=True,
-            streaming_support=True,
-            vision_support=True,
-            default_temperature=0.3,
-            default_max_tokens=4096
-        ))
-        
+
         # Anthropic Models (Unsupported in factory currently)
         # self.register(ModelMetadata(
         #     provider="anthropic",
