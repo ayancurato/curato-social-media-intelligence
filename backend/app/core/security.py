@@ -26,7 +26,7 @@ class CurrentUser(BaseModel):
 
 # ── Mock user for development ────────────────────────────────────────────────
 _MOCK_USER = CurrentUser(
-    id=uuid4(),
+    id=UUID("00000000-0000-0000-0000-000000000000"),
     email="team@curato.ai",
     name="Curato Team",
     role="admin",

@@ -66,6 +66,12 @@ async def run_migrations():
                 async_engine = create_async_engine(db_url)
                 async with async_engine.begin() as conn:
                     await conn.run_sync(Base.metadata.create_all)
+                    from sqlalchemy import text
+                    await conn.execute(text("""
+                        INSERT INTO users (id, email, name, role, created_at, updated_at) 
+                        VALUES ('00000000-0000-0000-0000-000000000000', 'team@curato.ai', 'Curato Team', 'admin', NOW(), NOW())
+                        ON CONFLICT (id) DO NOTHING
+                    """))
                 await async_engine.dispose()
                 return {"status": "success", "output": output.getvalue()}
             else:
