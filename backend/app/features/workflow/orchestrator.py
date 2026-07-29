@@ -389,9 +389,9 @@ class WorkflowOrchestrator:
         session: GenerationSession,
         status: WorkflowStatus,
     ) -> None:
-        """Update session status."""
+        """Update session status and commit immediately so polling can see the change."""
         session.status = status.value
-        await self._db.flush()
+        await self._db.commit()
 
     async def _log(
         self,
@@ -410,7 +410,8 @@ class WorkflowOrchestrator:
             details=details,
         )
         self._db.add(log_entry)
-        await self._db.flush()
+        # Commit immediately so log entries are visible to polling connections
+        await self._db.commit()
 
         # Also log to structured logger
         logger.info(

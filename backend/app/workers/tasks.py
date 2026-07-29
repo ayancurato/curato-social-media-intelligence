@@ -109,8 +109,25 @@ async def _run_workflow(session_id: str) -> dict:
             await db.commit()
             return result
 
-        except Exception:
-            await db.rollback()
+        except Exception as e:
+            # If the orchestrator's own exception handler didn't fire (e.g., because
+            # setup crashed before orchestrator was created), update status here.
+            import traceback
+            print(f"[_run_workflow] EXCEPTION for {session_id}: {e}\n{traceback.format_exc()}", flush=True)
+            try:
+                from app.models.generation_session import GenerationSession
+                from datetime import datetime, timezone
+                session_obj = await db.get(GenerationSession, UUID(session_id))
+                if session_obj and session_obj.status == "pending":
+                    session_obj.status = "failed"
+                    session_obj.error_message = str(e)
+                    session_obj.completed_at = datetime.now(timezone.utc)
+                    await db.commit()
+                    print(f"[_run_workflow] Marked session {session_id} as failed", flush=True)
+            except Exception as update_err:
+                print(f"[_run_workflow] Could not update session status: {update_err}", flush=True)
+                await db.rollback()
             raise
         finally:
             await engine.dispose()
+
