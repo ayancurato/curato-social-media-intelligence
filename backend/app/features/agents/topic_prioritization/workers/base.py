@@ -15,7 +15,7 @@ from tenacity import (
 
 from app.core.exceptions import AgentValidationError
 from app.core.logging import get_logger
-from app.services.llm.provider import LLMProvider
+from app.services.llm.base import LLMProvider
 
 logger = get_logger(__name__)
 
