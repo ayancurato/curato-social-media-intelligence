@@ -26,26 +26,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Curato AI starting up", env=get_settings().app_env)
 
     # ── Database Migrations ──────────────────────────────────────────────
-    try:
-        from sqlalchemy.ext.asyncio import create_async_engine
-        from app.core.config import get_settings
-        from app.models import Base
-        
-        db_url = get_settings().database_url
-        if "asyncpg" in db_url and "sslmode=" in db_url:
-            db_url = db_url.replace("sslmode=", "ssl=")
-            
-        logger.info("Creating database tables using async engine...")
-        async_engine = create_async_engine(db_url)
-        
-        async with async_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            
-        await async_engine.dispose()
-        logger.info("Database tables created successfully")
-    except Exception as e:
-        logger.error("Failed to run database migrations", error=str(e))
-        # Don't fail the startup if migrations fail, it might be fine or we want to see other errors
+    # We will trigger this manually via the /api/v1/migrate endpoint
+    # to avoid blocking the server startup and causing a Render timeout.
+    pass
         
     yield
 

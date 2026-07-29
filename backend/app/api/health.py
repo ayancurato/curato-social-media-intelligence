@@ -49,30 +49,27 @@ async def health_check(db: AsyncSession = Depends(get_db)):
 @router.get("/migrate")
 async def run_migrations():
     """Temporarily run migrations via API to see errors."""
-    import sys
     import io
     from contextlib import redirect_stdout, redirect_stderr
-    import os
-    from sqlalchemy import create_engine
+    from sqlalchemy.ext.asyncio import create_async_engine
     from app.core.config import get_settings
     from app.models import Base
     
     output = io.StringIO()
     try:
         with redirect_stdout(output), redirect_stderr(output):
-            sync_url = get_settings().database_url_sync
-            if not sync_url and get_settings().database_url:
-                sync_url = get_settings().database_url.replace("+asyncpg", "")
-                if "sslmode=" in sync_url:
-                    sync_url = sync_url.replace("sslmode=", "ssl=")
+            db_url = get_settings().database_url
+            if "asyncpg" in db_url and "sslmode=" in db_url:
+                db_url = db_url.replace("sslmode=", "ssl=")
                     
-            if sync_url:
-                sync_engine = create_engine(sync_url)
-                Base.metadata.create_all(sync_engine)
-                sync_engine.dispose()
+            if db_url:
+                async_engine = create_async_engine(db_url)
+                async with async_engine.begin() as conn:
+                    await conn.run_sync(Base.metadata.create_all)
+                await async_engine.dispose()
                 return {"status": "success", "output": output.getvalue()}
             else:
-                return {"status": "error", "error": "No sync URL derived"}
+                return {"status": "error", "error": "No database URL derived"}
     except Exception as e:
         import traceback
         return {"status": "error", "error": str(e), "traceback": traceback.format_exc(), "output": output.getvalue()}
