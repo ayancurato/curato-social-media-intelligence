@@ -37,12 +37,12 @@ class ContentWriterAgent(BaseAgent):
 
     async def validate_input(self, data: dict[str, Any]) -> bool:
         if "blueprints" not in data:
-            raise AgentValidationError("Missing blueprints in input")
+            raise AgentValidationError("Missing blueprints in input", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def validate_output(self, data: dict[str, Any]) -> bool:
         if "drafts" not in data:
-            raise AgentValidationError("Missing drafts in output")
+            raise AgentValidationError("Missing drafts in output", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def _process_single_blueprint(self, blueprint: dict[str, Any], session_id: str, ws_manager: Any, llm: Any) -> dict[str, Any]:

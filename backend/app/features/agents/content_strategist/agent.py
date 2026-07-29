@@ -36,13 +36,13 @@ class ContentStrategistAgent(BaseAgent):
     async def validate_input(self, data: dict[str, Any]) -> bool:
         """Validate input from Agent 2 (Topic Prioritization)."""
         if "top_5_recommendations" not in data:
-            raise AgentValidationError("Missing top_5_recommendations in input")
+            raise AgentValidationError("Missing top_5_recommendations in input", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def validate_output(self, data: dict[str, Any]) -> bool:
         """Ensure blueprints are present."""
         if "blueprints" not in data:
-            raise AgentValidationError("Missing blueprints in output")
+            raise AgentValidationError("Missing blueprints in output", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def run(

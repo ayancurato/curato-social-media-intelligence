@@ -36,15 +36,15 @@ class TopicPrioritizationAgent(BaseAgent):
     async def validate_input(self, data: dict[str, Any]) -> bool:
         """Validate input from Agent 1 (Research Intelligence)."""
         if "research_results" not in data and "topics" not in data:
-            raise AgentValidationError("Missing research results or topics in input")
+            raise AgentValidationError("Missing research results or topics in input", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def validate_output(self, data: dict[str, Any]) -> bool:
         """Ensure Top 30 and Top 5 recommendations are present."""
         if "top_30_topics" not in data:
-            raise AgentValidationError("Missing top_30_topics in output")
+            raise AgentValidationError("Missing top_30_topics in output", agent_name=self.name() if callable(self.name) else self.name)
         if "top_5_recommendations" not in data:
-            raise AgentValidationError("Missing top_5_recommendations in output")
+            raise AgentValidationError("Missing top_5_recommendations in output", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def run(

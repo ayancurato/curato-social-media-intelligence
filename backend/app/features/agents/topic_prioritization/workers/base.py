@@ -71,7 +71,7 @@ class BaseTopicWorker(ABC):
                 parsed = json.loads(response.content)
             except json.JSONDecodeError as e:
                 logger.error("Failed to parse worker output", worker=self.name() if callable(self.name() if callable(self.name) else self.name) else self.name, error=str(e))
-                raise AgentValidationError(f"Invalid JSON from {self.name() if callable(self.name) else self.name}: {e}")
+                raise AgentValidationError(f"Invalid JSON from {self.name() if callable(self.name) else self.name}: {e}", agent_name=self.name() if callable(self.name) else self.name)
 
             return parsed
 

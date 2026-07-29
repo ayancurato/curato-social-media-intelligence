@@ -34,12 +34,12 @@ class ChiefEditorAgent(BaseAgent):
 
     async def validate_input(self, data: dict[str, Any]) -> bool:
         if "drafts" not in data:
-            raise AgentValidationError("Missing drafts in input")
+            raise AgentValidationError("Missing drafts in input", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def validate_output(self, data: dict[str, Any]) -> bool:
         if "reviewed_drafts" not in data:
-            raise AgentValidationError("Missing reviewed_drafts in output")
+            raise AgentValidationError("Missing reviewed_drafts in output", agent_name=self.name() if callable(self.name) else self.name)
         return True
 
     async def _process_single_draft(self, draft_data: dict[str, Any], session_id: str, ws_manager: Any, llm: Any) -> dict[str, Any]:
