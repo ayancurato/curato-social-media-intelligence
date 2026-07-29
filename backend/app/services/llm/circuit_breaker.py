@@ -50,12 +50,16 @@ class CircuitBreaker:
             ProviderHealthStore.update_circuit_status(provider, model, "CLOSED")
 
     @classmethod
-    def record_failure(cls, provider: str, model: str):
+    def record_failure(cls, provider: str, model: str, retry_after: float = None):
         key = f"{provider}:{model}"
         state = cls._get_state(key)
         state["failures"] += 1
         state["last_failure_time"] = time.time()
         
+        # Determine cooldown
+        cooldown = retry_after if retry_after is not None else cls.RECOVERY_TIMEOUT_SEC
+        
         if state["status"] == "HALF_OPEN" or state["failures"] >= cls.FAILURE_THRESHOLD:
             state["status"] = "OPEN"
             ProviderHealthStore.update_circuit_status(provider, model, "OPEN")
+            ProviderHealthStore.mark_cooldown(provider, model, cooldown)

@@ -226,6 +226,25 @@ class WorkflowOrchestrator:
             }
 
         except Exception as e:
+            from app.services.llm.exceptions import AllProvidersExhaustedError
+            
+            if isinstance(e, AllProvidersExhaustedError):
+                logger.error("Workflow paused due to provider exhaustion", session_id=str(session_id), error=str(e))
+                session.error_message = "All configured LLM providers have exhausted their available quota."
+                session.completed_at = datetime.now(timezone.utc)
+                # Ensure the status is mapped correctly; using a string literal if WorkflowStatus enum doesn't have it yet
+                # We update it to "paused_provider_exhausted" and let frontend handle it
+                await self._update_session(session, "paused_provider_exhausted")
+                await self._log(session_id, "error", f"Workflow paused: {session.error_message}")
+                await self._emit_event(session_id, "workflow_paused", {"reason": session.error_message})
+                await self._db.commit()
+                return {
+                    "success": False,
+                    "session_id": str(session_id),
+                    "status": "paused_provider_exhausted",
+                    "reason": session.error_message
+                }
+                
             logger.error("Workflow execution failed", session_id=str(session_id), error=str(e))
             session.error_message = str(e)
             

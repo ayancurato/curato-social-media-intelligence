@@ -95,6 +95,43 @@ async def get_workflow_logs(
 
 
 @router.get(
+    "/providers/health",
+    summary="Get LLM provider health status",
+)
+async def get_provider_health():
+    """Get the current health, latency, and cooldown status of all registered LLM providers."""
+    import time
+    from app.services.llm.scoring import ProviderHealthStore
+    from app.services.evaluations.registry import provider_registry
+    
+    health_data = []
+    current_time = time.time()
+    
+    for name, meta in provider_registry._models.items():
+        h = ProviderHealthStore.get_health(meta.provider, name)
+        
+        status = "Healthy"
+        if h.cooldown_until > current_time:
+            if getattr(h, 'last_failure_reason', "") == "Quota exhausted":
+                status = "Quota Exhausted"
+            else:
+                status = "Cooldown"
+                
+        health_data.append({
+            "provider": meta.provider,
+            "model": name,
+            "status": status,
+            "cooldown_remaining_seconds": max(0, int(h.cooldown_until - current_time)),
+            "last_failure_reason": getattr(h, 'last_failure_reason', ""),
+            "successful_requests": h.total_requests - h.total_failures,
+            "consecutive_failures": getattr(h, 'consecutive_failures', 0),
+            "average_latency_ms": round(h.average_latency_ms, 2)
+        })
+        
+    return ResponseEnvelope(success=True, data={"providers": health_data})
+
+
+@router.get(
     "/history",
     response_model=ResponseEnvelope[PaginatedResponse[GenerationSummary]],
     summary="Get generation history",
