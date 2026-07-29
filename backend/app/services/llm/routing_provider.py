@@ -57,10 +57,13 @@ class RoutingLLMProvider(LLMProvider):
             start_time = time.monotonic()
 
             try:
+                # Update config with the specifically routed model
+                routed_config = config.model_copy(update={"provider": meta.provider, "model": meta.model_name})
+                
                 response = await provider_instance.generate(
                     prompt=prompt,
                     system_prompt=system_prompt,
-                    model_config=config,
+                    model_config=routed_config,
                 )
 
                 latency_ms = (time.monotonic() - start_time) * 1000
@@ -120,10 +123,13 @@ class RoutingLLMProvider(LLMProvider):
             start_time = time.monotonic()
 
             try:
+                # Update config with the specifically routed model
+                routed_config = config.model_copy(update={"provider": meta.provider, "model": meta.model_name})
+                
                 result = await provider_instance.generate_structured(
                     prompt=prompt,
                     system_prompt=system_prompt,
-                    model_config=config,
+                    model_config=routed_config,
                 )
 
                 latency_ms = (time.monotonic() - start_time) * 1000
