@@ -30,7 +30,6 @@ class TopicPrioritizationAgent(BaseAgent):
     """
 
     @property
-    @property
     def name(self) -> str:
         return "topic_prioritization"
 
@@ -176,4 +175,3 @@ class TopicPrioritizationAgent(BaseAgent):
                 "total_evaluated": len(topics)
             }
         }
-

@@ -9,7 +9,6 @@ from app.features.agents.content_strategist.workers.base import BaseBatchContent
 
 class MessagingFrameworkWorker(BaseBatchContentWorker):
     @property
-    @property
     def name(self) -> str:
         return "Messaging Framework Worker"
 
@@ -50,4 +49,3 @@ You MUST return a JSON object mapping each exact topic title to its framework.
 {json.dumps(topics_subset, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
-

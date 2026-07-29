@@ -9,7 +9,6 @@ from app.features.agents.cmo.workers.base import BaseCMOWorker
 
 class RiskAssessmentWorker(BaseCMOWorker):
     @property
-    @property
     def name(self) -> str:
         return "Risk Assessment Guardian"
 
@@ -50,4 +49,3 @@ You MUST output a JSON object:
 {json.dumps(marketing_knowledge.get("brand_knowledge", {}).get("compliance_rules", []), indent=2)}
 
 Return the JSON risk evaluation strictly."""
-

@@ -9,7 +9,6 @@ from app.features.agents.content_strategist.workers.base import BaseSingleConten
 
 class CTAStrategistWorker(BaseSingleContentWorker):
     @property
-    @property
     def name(self) -> str:
         return "CTA Strategist"
 
@@ -38,4 +37,3 @@ Audience: {topic.get('audience')}
 Platform: {topic.get('platform', 'LinkedIn')}
 
 Return ONLY valid JSON according to the schema."""
-

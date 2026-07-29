@@ -9,7 +9,6 @@ from app.features.agents.content_writer.workers.base import BaseWriterWorker
 
 class VariationGeneratorWorker(BaseWriterWorker):
     @property
-    @property
     def name(self) -> str:
         return "Variation Generator"
 
@@ -58,4 +57,3 @@ INITIAL DRAFT:
 {initial_draft}
 
 Return ONLY valid JSON according to the schema."""
-

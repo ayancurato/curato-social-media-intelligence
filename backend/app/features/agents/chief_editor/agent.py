@@ -29,7 +29,6 @@ class ChiefEditorAgent(BaseAgent):
     """
 
     @property
-    @property
     def name(self) -> str:
         return "chief_editor"
 
@@ -182,4 +181,3 @@ class ChiefEditorAgent(BaseAgent):
             "reviewed_drafts": reviewed_drafts,
             "_metadata": {"traces": all_traces}
         }
-

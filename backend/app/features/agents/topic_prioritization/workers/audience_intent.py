@@ -9,7 +9,6 @@ from app.features.agents.topic_prioritization.workers.base import BaseTopicWorke
 
 class AudienceIntentWorker(BaseTopicWorker):
     @property
-    @property
     def name(self) -> str:
         return "Audience Intent Worker"
 
@@ -48,4 +47,3 @@ You MUST return a JSON object with a single root key "evaluations" mapping exact
 {json.dumps(topics_subset, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
-

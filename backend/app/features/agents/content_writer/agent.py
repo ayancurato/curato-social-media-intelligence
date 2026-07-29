@@ -32,7 +32,6 @@ class ContentWriterAgent(BaseAgent):
     """
 
     @property
-    @property
     def name(self) -> str:
         return "content_writer"
 
@@ -298,4 +297,3 @@ class ContentWriterAgent(BaseAgent):
             "drafts": drafts,
             "_metadata": {"traces": all_traces}
         }
-

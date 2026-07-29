@@ -10,7 +10,6 @@ from app.features.agents.research.workers.base import BaseWorker
 
 class ContentGapWorker(BaseWorker):
     @property
-    @property
     def name(self) -> str:
         return "content_gap"
 
@@ -62,4 +61,3 @@ class ContentGapWorker(BaseWorker):
             "data": llm_response,
             "source": "content_gap_worker"
         }
-

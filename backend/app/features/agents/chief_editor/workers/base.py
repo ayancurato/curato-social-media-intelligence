@@ -28,7 +28,6 @@ class BaseEditorWorker(ABC):
 
     @property
     @abstractmethod
-    @property
     def name(self) -> str:
         pass
 
@@ -86,4 +85,3 @@ class BaseEditorWorker(ABC):
         except Exception as e:
             logger.warning(f"{self.name} transient error", error=str(e))
             raise
-

@@ -10,7 +10,6 @@ from app.features.agents.research.workers.base import BaseWorker
 
 class MarketingNewsWorker(BaseWorker):
     @property
-    @property
     def name(self) -> str:
         return "marketing_news"
 
@@ -58,4 +57,3 @@ class MarketingNewsWorker(BaseWorker):
             "data": llm_response.get("news_items", []),
             "source": "marketing_news_worker"
         }
-

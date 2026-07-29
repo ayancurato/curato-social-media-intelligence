@@ -10,7 +10,6 @@ from app.features.agents.research.workers.base import BaseWorker
 
 class SocialTrendWorker(BaseWorker):
     @property
-    @property
     def name(self) -> str:
         return "social_trend"
 
@@ -57,4 +56,3 @@ class SocialTrendWorker(BaseWorker):
             "data": llm_response.get("social_trends", []),
             "source": "social_trend_worker"
         }
-

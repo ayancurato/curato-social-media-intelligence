@@ -9,7 +9,6 @@ from app.features.agents.content_writer.workers.base import BaseWriterWorker
 
 class DraftSelectorWorker(BaseWriterWorker):
     @property
-    @property
     def name(self) -> str:
         return "Draft Selector"
 
@@ -42,4 +41,3 @@ VARIATIONS:
 {json.dumps(variations, indent=2)}
 
 Return ONLY valid JSON according to the schema."""
-
