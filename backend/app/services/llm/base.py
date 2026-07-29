@@ -8,11 +8,12 @@ interface — never with a specific provider directly.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from app.features.agents.config import ModelConfig
+if TYPE_CHECKING:
+    from app.features.agents.config import ModelConfig
 
 
 class LLMResponse(BaseModel):
