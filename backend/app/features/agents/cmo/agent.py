@@ -9,7 +9,7 @@ from app.core.logging import get_logger
 from app.features.agents.base import BaseAgent
 from app.features.agents.config import get_agent_config
 from app.services.llm.factory import get_llm_provider
-from app.features.realtime.connection import get_connection_manager
+from app.features.websocket.manager import get_connection_manager
 from app.services.marketing_knowledge.provider import marketing_provider
 
 from app.features.agents.cmo.workers import (
