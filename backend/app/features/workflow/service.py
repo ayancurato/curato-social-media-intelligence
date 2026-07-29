@@ -69,22 +69,32 @@ class WorkflowService:
         # Without this, the background task races the HTTP request's DB commit.
         await self._db.commit()
 
-        import asyncio
+        import threading
+        import asyncio as _asyncio
         from app.workers.tasks import _run_workflow
 
-        async def _run_with_logging():
-            print(f"[BACKGROUND] Starting workflow {session_id_str}", flush=True)
+        def _run_in_thread() -> None:
+            """Run workflow in a dedicated OS thread with its own asyncio event loop."""
+            loop = _asyncio.new_event_loop()
+            _asyncio.set_event_loop(loop)
             try:
-                await _run_workflow(session_id_str)
-                print(f"[BACKGROUND] Workflow {session_id_str} completed", flush=True)
+                print(f"[THREAD] Starting workflow {session_id_str}", flush=True)
+                loop.run_until_complete(_run_workflow(session_id_str))
+                print(f"[THREAD] Workflow completed: {session_id_str}", flush=True)
             except Exception as e:
-                print(f"[BACKGROUND] Workflow {session_id_str} FAILED: {e}", flush=True)
-                logger.error("Background task failed", session_id=session_id_str, error=str(e))
+                import traceback as tb
+                print(f"[THREAD] Workflow FAILED {session_id_str}: {e}\n{tb.format_exc()}", flush=True)
+                logger.error("Thread workflow failed", session_id=session_id_str, error=str(e))
+            finally:
+                loop.close()
 
-        # Keep a strong reference so GC doesn't collect the task before it runs
-        task = asyncio.create_task(_run_with_logging())
-        _background_tasks.add(task)
-        task.add_done_callback(_background_tasks.discard)
+        thread = threading.Thread(
+            target=_run_in_thread,
+            daemon=True,
+            name=f"workflow-{session_id_str[:8]}",
+        )
+        thread.start()
+        print(f"[THREAD] Thread started for workflow {session_id_str}", flush=True)
 
         return WorkflowTriggerResponse(
             session_id=session_id_uuid,
