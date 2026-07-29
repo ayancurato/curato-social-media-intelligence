@@ -51,7 +51,7 @@ class RoutingLLMProvider(LLMProvider):
             meta = RoutingPolicyEngine.get_best_provider(self.policy, excluded_models=excluded_models)
 
             if not meta:
-                raise RuntimeError("No healthy providers available for routing.")
+                raise RuntimeError(f"No healthy providers available for routing. Last error: {str(last_error)}")
 
             provider_instance = self._get_underlying_provider(meta.provider)
             start_time = time.monotonic()
@@ -117,7 +117,7 @@ class RoutingLLMProvider(LLMProvider):
             meta = RoutingPolicyEngine.get_best_provider(self.policy, excluded_models=excluded_models)
 
             if not meta:
-                raise RuntimeError("No healthy providers available for routing.")
+                raise RuntimeError(f"No healthy providers available for routing. Last error: {str(last_error)}")
 
             provider_instance = self._get_underlying_provider(meta.provider)
             start_time = time.monotonic()
